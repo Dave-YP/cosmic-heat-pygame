@@ -1,7 +1,9 @@
 import pygame
 from constants import WIDTH, HEIGHT
+from game_objects import Enemy
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+bullets = pygame.sprite.Group()
 
 
 def music_background():
@@ -32,3 +34,20 @@ def show_game_win():
     pygame.mixer.music.play()
     pygame.time.delay(4000)
     music_background()
+
+
+def reset_game_state(enemies, enemy_img):
+    enemies.empty()
+    for j in range(3):
+        for i in range(6):
+            enemy = Enemy(i * 100 + 30 + 50, j * 100 + 30, enemy_img)
+            enemies.add(enemy)
+
+    enemy_group = pygame.sprite.Group()
+    for enemy in enemies:
+        enemy_group.add(enemy)
+
+    bullets.empty()
+    bullet_counter = 0
+
+    return enemy_group, bullets, bullet_counter
