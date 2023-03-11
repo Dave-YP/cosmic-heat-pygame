@@ -7,4 +7,4 @@
  - source env/Scripts/activate
  - pip install -r requirements.txt
 
- - запускаем menu.py из терминала в папке City_2050
+ - запускаем menu.py из терминала в папке Capital_2050
