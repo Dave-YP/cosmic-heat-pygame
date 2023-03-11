@@ -16,8 +16,8 @@ bullets = pygame.sprite.Group()
 
 enemy_img = pygame.image.load('images/enemy.png').convert_alpha()
 enemies = pygame.sprite.Group()
-for j in range(3):
-    for i in range(6):
+for j in range(2):
+    for i in range(12):
         enemy = Enemy(i * 100 + 30 + 50, j * 100 + 30, enemy_img)
         enemies.add(enemy)
 
