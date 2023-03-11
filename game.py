@@ -57,11 +57,11 @@ while running:
         show_game_win()
         enemy_group, bullets, bullet_counter = reset_game_state(enemies, enemy_img)
 
-    if bullet_counter == 40:
+    if bullet_counter == 30:
         show_game_over()
         enemy_group, bullets, bullet_counter = reset_game_state(enemies, enemy_img)
 
-    bullet_counter_surface = pygame.font.SysFont('Arial', 30).render(f'Запас ракет: {40 - bullet_counter}/40', True, (255, 255, 255))
+    bullet_counter_surface = pygame.font.SysFont('Arial', 20).render(f'ЛАЗЕРЫ: {30 - bullet_counter}/30', True, (255, 255, 255))
     screen.blit(bullet_counter_surface, (10, 10))
     for enemy in enemy_group:
         enemy.update()

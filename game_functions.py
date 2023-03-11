@@ -14,7 +14,7 @@ def music_background():
 
 def show_game_over():
     font = pygame.font.Font(None, 200)
-    text = font.render("Game Over", True, (255, 0, 0))
+    text = font.render("ИГРА ОКОНЧЕНА", True, (255, 0, 0))
     text_rect = text.get_rect(center=(WIDTH/2, HEIGHT/2))
     screen.blit(text, text_rect)
     pygame.display.flip()
@@ -26,7 +26,7 @@ def show_game_over():
 
 def show_game_win():
     font = pygame.font.Font(None, 200)
-    text = font.render("Победа!", True, (255, 255, 255))
+    text = font.render("ПОБЕДА!", True, (255, 255, 255))
     text_rect = text.get_rect(center=(WIDTH/2, HEIGHT/2))
     screen.blit(text, text_rect)
     pygame.display.flip()
