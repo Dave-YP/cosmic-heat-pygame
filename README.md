@@ -8,3 +8,4 @@
  - pip install -r requirements.txt
 
  - запускаем menu.py из терминала в папке Capital_2050
+ - стрелять: пробел, передвижение: стрелки
