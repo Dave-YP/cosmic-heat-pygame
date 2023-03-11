@@ -49,5 +49,6 @@ def reset_game_state(enemies, enemy_img):
 
     bullets.empty()
     bullet_counter = 0
+    player_life = 100
 
-    return enemy_group, bullets, bullet_counter
+    return enemy_group, bullets, bullet_counter, player_life
