@@ -1,4 +1,4 @@
-![](./Capital_2050/images/capital2050.PNG)
+![alt text](Capital_2050/images/capital2050.png "Capital_2050")
 # Capital_2050
 ## Запуск игры:
  - python -m venv env
