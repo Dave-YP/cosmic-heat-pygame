@@ -1,4 +1,4 @@
-![](./Capital_2050/images/logo.png)
+![](./Capital_2050/images/capital_2050.png)
 # Capital_2050
 ## Запуск игры:
  - python -m venv env
