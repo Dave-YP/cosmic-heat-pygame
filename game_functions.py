@@ -1,7 +1,6 @@
 import pygame
-from constants import WIDTH, HEIGHT
+from constants import WIDTH, HEIGHT, ENEMY_SUM, ENEMY_ROW
 from game_objects import Enemy
-
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 bullets = pygame.sprite.Group()
 
@@ -13,7 +12,7 @@ def music_background():
 
 
 def show_game_over():
-    font = pygame.font.Font(None, 200)
+    font = pygame.font.Font(None, 150)
     text = font.render("ИГРА ОКОНЧЕНА", True, (255, 0, 0))
     text_rect = text.get_rect(center=(WIDTH/2, HEIGHT/2))
     screen.blit(text, text_rect)
@@ -38,8 +37,8 @@ def show_game_win():
 
 def reset_game_state(enemies, enemy_img):
     enemies.empty()
-    for j in range(2):
-        for i in range(12):
+    for j in range(ENEMY_ROW):
+        for i in range(ENEMY_SUM):
             enemy = Enemy(i * 100 + 30 + 50, j * 100 + 30, enemy_img)
             enemies.add(enemy)
 
