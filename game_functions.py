@@ -1,4 +1,5 @@
 import pygame
+import random
 from constants import WIDTH, HEIGHT, ENEMY_SUM, ENEMY_ROW
 from game_objects import Enemy
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -43,7 +44,8 @@ def reset_game_state(enemies, enemy_img):
     enemies.empty()
     for j in range(ENEMY_ROW):
         for i in range(ENEMY_SUM):
-            enemy = Enemy(i * 100 + 30 + 50, j * 100 + 30, enemy_img)
+            img = random.choice(enemy_img)
+            enemy = Enemy(i * 100 + 30 + 50, j * 100 + 30, img)
             enemies.add(enemy)
 
     enemy_group = pygame.sprite.Group()
@@ -51,19 +53,19 @@ def reset_game_state(enemies, enemy_img):
         enemy_group.add(enemy)
 
     bullets.empty()
-    bullet_counter = 0
-    player_life = 100
     score = 0
+    player_life = 100
+    bullet_counter = 100
 
     return enemy_group, bullets, bullet_counter, player_life, score
 
 
 def create_enemies(enemies, enemy_img):
 
-
     for j in range(ENEMY_ROW):
         for i in range(ENEMY_SUM):
-            enemy = Enemy(i * 100 + 30 + 50, j * 100 + 30, enemy_img)
+            img = random.choice(enemy_img)
+            enemy = Enemy(i * 100 + 30 + 50, j * 100 + 30, img)
             enemies.add(enemy)
 
     enemy_group = pygame.sprite.Group()
