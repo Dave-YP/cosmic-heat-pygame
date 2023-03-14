@@ -1,7 +1,7 @@
 import pygame
 import random
 
-from game_objects import Enemy, Player, Explosion, BulletRefill
+from game_objects import Enemy, Player, Explosion, BulletRefill, HealthRefill
 from game_controls import move_player
 from constants import WIDTH, HEIGHT, FPS, ENEMY_SUM, ENEMY_ROW
 from game_functions import show_game_over, create_enemies, music_background, reset_game_state
@@ -46,6 +46,7 @@ bullets = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 bullet_refill_group = pygame.sprite.Group()
+health_refill_group = pygame.sprite.Group()
 
 bg_y_shift = -HEIGHT
 background_img = pygame.image.load('images/background.jpg').convert()
@@ -55,7 +56,8 @@ background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
 
 explosion_images = [pygame.image.load(f"images/explosion/explosion{i}.png") for i in range(18)]
 enemy_img = pygame.image.load('images/enemy.png').convert_alpha()
-bullet_refill_img = pygame.image.load('images/ammo.png').convert_alpha()
+bullet_refill_img = pygame.image.load('images/bullet_refill.png').convert_alpha()
+health_refill_img = pygame.image.load('images/health.png').convert_alpha()
 
 initial_player_pos = (WIDTH // 2, HEIGHT - 100)
 score = 0
@@ -117,6 +119,14 @@ while running:
         )
         bullet_refill_group.add(bullet_refill)
 
+    if random.randint(0, 400) == 0:
+        health_refill = HealthRefill(
+            random.randint(30, WIDTH - 30),
+            random.randint(-HEIGHT, -31),
+            health_refill_img,
+        )
+        health_refill_group.add(health_refill)
+
     if len(enemy_group) == 10:
         # show_game_win()
         enemy_group, bullets = create_enemies(enemies, enemy_img)
@@ -126,19 +136,7 @@ while running:
     #    show_game_over(score)
     #    enemy_group, bullets, bullet_counter, player_life, score = reset_game_state(enemies, enemy_img)
 
-    player_life_surface = pygame.font.SysFont('Impact', 20).render(f'HEALTH: {player_life}', True, (255, 255, 255))
-    life_x_pos = 10
-    screen.blit(player_life_surface, (life_x_pos, 10))
-
-    bullet_counter_surface = pygame.font.SysFont('Impact', 20).render(f'BULLETS: {100 - bullet_counter}', True, (255, 255, 255))
-    bullet_x_pos = 10
-    bullet_y_pos = player_life_surface.get_height() + 20
-    screen.blit(bullet_counter_surface, (bullet_x_pos, bullet_y_pos))
-
-    score_surface = pygame.font.SysFont('Impact', 20).render(f'SCORE: {score}', True, (255, 255, 255))
-    score_x_pos = 10
-    score_y_pos = bullet_y_pos + bullet_counter_surface.get_height() + 10
-    screen.blit(score_surface, (score_x_pos, score_y_pos))
+# 4444444
 
     for bullet_refill in bullet_refill_group:
 
@@ -148,6 +146,19 @@ while running:
         if player.rect.colliderect(bullet_refill.rect):
             bullet_counter -= 10
             bullet_refill.kill()
+
+    for health_refill in health_refill_group:
+        health_refill.update()
+        health_refill.draw(screen)
+
+        if player.rect.colliderect(health_refill.rect):
+            if player_life < 100:
+                player_life += 10
+                if player_life > 100:
+                    player_life = 100
+                health_refill.kill()
+            else:
+                health_refill.kill()
 
     for enemy in enemy_group:
         enemy.update(enemy_group)
@@ -177,6 +188,20 @@ while running:
         if bullet.rect.bottom < 0:
             bullet.kill()
             bullet_counter -= 1
+
+    player_life_surface = pygame.font.SysFont('Impact', 30).render(f'HEALTH: {player_life}', True, (255, 255, 255))
+    life_x_pos = 10
+    screen.blit(player_life_surface, (life_x_pos, 10))
+
+    bullet_counter_surface = pygame.font.SysFont('Impact', 30).render(f'BULLETS: {100 - bullet_counter}', True, (255, 255, 255))
+    bullet_x_pos = 10
+    bullet_y_pos = player_life_surface.get_height() + 20
+    screen.blit(bullet_counter_surface, (bullet_x_pos, bullet_y_pos))
+
+    score_surface = pygame.font.SysFont('Impact', 30).render(f'SCORE: {score}', True, (255, 255, 255))
+    score_x_pos = WIDTH - score_surface.get_width() - 10
+    score_y_pos = 10
+    screen.blit(score_surface, (score_x_pos, score_y_pos))
 
     pygame.display.flip()
 
