@@ -170,6 +170,8 @@ while running:
                 show_game_over(score)
                 enemy_group, bullets, bullet_counter, player_life, score = reset_game_state(enemies, enemy_img)
                 player.rect.topleft = initial_player_pos
+                bullet_refill_group.empty()
+                health_refill_group.empty()
             else:
                 explosion = Explosion(enemy.rect.center, explosion_images)
                 explosions.add(explosion)
