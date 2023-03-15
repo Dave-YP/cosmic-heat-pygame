@@ -60,6 +60,34 @@ class HealthRefill(pygame.sprite.Sprite):
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
+class Speed(pygame.sprite.Sprite):
+    def __init__(self, x, y, image):
+        super().__init__()
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = 1
+        self.direction_x = random.choice([-2, 2])
+        self.direction_y = random.choice([-2, 2])
+        self.sound_effect = pygame.mixer.Sound("game_sounds/health_refill.wav")
+
+    def update(self):
+        self.rect.y += self.speed * self.direction_y
+        self.rect.x += self.speed * self.direction_x
+
+        if random.randint(0, 100) == 0:
+            self.direction_x *= -1
+            self.direction_y *= -1
+
+        self.rect.left = max(self.rect.left, 0)
+        self.rect.right = min(self.rect.right, WIDTH)
+        self.rect.top = max(self.rect.top, 0)
+        self.rect.bottom = min(self.rect.bottom, HEIGHT)
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
 
 class Player:
     def __init__(self):
