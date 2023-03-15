@@ -57,7 +57,8 @@ background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
 explosion_images = [pygame.image.load(f"images/explosion/explosion{i}.png") for i in range(18)]
 enemy_img = [
     pygame.image.load('images/enemy1.png').convert_alpha(),
-    pygame.image.load('images/enemy2.png').convert_alpha()
+    pygame.image.load('images/enemy2.png').convert_alpha(),
+    pygame.image.load('images/enemy3.png').convert_alpha()
 ]
 health_refill_img = pygame.image.load('images/health.png').convert_alpha()
 bullet_refill_img = pygame.image.load('images/bullet_refill.png').convert_alpha()
