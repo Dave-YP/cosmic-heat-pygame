@@ -3,6 +3,26 @@ from constants import WIDTH, HEIGHT, ENEMY_FORCE
 import random
 
 
+class Bullet(pygame.sprite.Sprite):
+
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.image.load('images/bullet.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image, (25, 25))
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.bottom = y - 10
+        self.speed = 10
+        self.shoot_sound = pygame.mixer.Sound('game_sounds/shooting/shoot.wav')
+        self.shoot_sound.play()
+
+    def update(self):
+        self.rect.move_ip(0, -self.speed)
+
+        if self.rect.top <= 1:
+            self.kill()
+
+
 class BulletRefill(pygame.sprite.Sprite):
     def __init__(self, x, y, image):
         super().__init__()
@@ -60,30 +80,29 @@ class HealthRefill(pygame.sprite.Sprite):
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
-class Speed(pygame.sprite.Sprite):
+
+class Meteors(pygame.sprite.Sprite):
+
     def __init__(self, x, y, image):
         super().__init__()
-        self.image = image
+        self.original_image = image
+        self.image = self.original_image.copy()
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.speed = 1
-        self.direction_x = random.choice([-2, 2])
-        self.direction_y = random.choice([-2, 2])
-        self.sound_effect = pygame.mixer.Sound("game_sounds/health_refill.wav")
+        self.direction_x = 0
+        self.direction_y = 1
+        self.angle = 0
 
     def update(self):
         self.rect.y += self.speed * self.direction_y
-        self.rect.x += self.speed * self.direction_x
 
-        if random.randint(0, 100) == 0:
-            self.direction_x *= -1
-            self.direction_y *= -1
+        if self.rect.bottom >= HEIGHT - 1:
+            self.kill()
 
-        self.rect.left = max(self.rect.left, 0)
-        self.rect.right = min(self.rect.right, WIDTH)
-        self.rect.top = max(self.rect.top, 0)
-        self.rect.bottom = min(self.rect.bottom, HEIGHT)
+        self.angle = (self.angle - 1) % 360
+        self.image = pygame.transform.rotozoom(self.original_image, self.angle, 1)
+        self.rect = self.image.get_rect(center=self.rect.center)
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
