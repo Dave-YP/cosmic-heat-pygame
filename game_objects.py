@@ -8,7 +8,6 @@ class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         self.image = pygame.image.load('images/bullet.png').convert_alpha()
-        self.image = pygame.transform.scale(self.image, (25, 25))
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y - 10
@@ -24,6 +23,7 @@ class Bullet(pygame.sprite.Sprite):
 
 
 class BulletRefill(pygame.sprite.Sprite):
+
     def __init__(self, x, y, image):
         super().__init__()
         self.image = image
@@ -33,26 +33,25 @@ class BulletRefill(pygame.sprite.Sprite):
         self.speed = 1
         self.direction_x = random.choice([-2, 2])
         self.direction_y = random.choice([-2, 2])
-        self.sound_effect = pygame.mixer.Sound("game_sounds/bullet_refill.wav")
+        self.sound_effect = pygame.mixer.Sound("game_sounds/refill/bullet_refill.wav")
 
     def update(self):
         self.rect.y += self.speed * self.direction_y
         self.rect.x += self.speed * self.direction_x
-
-        if random.randint(0, 100) == 0:
-            self.direction_x *= -1
-            self.direction_y *= -1
-
         self.rect.left = max(self.rect.left, 0)
         self.rect.right = min(self.rect.right, WIDTH)
         self.rect.top = max(self.rect.top, 0)
         self.rect.bottom = min(self.rect.bottom, HEIGHT)
+        if random.randint(0, 50) == 0:
+            self.direction_x *= - 1
+            self.direction_y *= - 1
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
 
 class HealthRefill(pygame.sprite.Sprite):
+
     def __init__(self, x, y, image):
         super().__init__()
         self.image = image
@@ -62,20 +61,46 @@ class HealthRefill(pygame.sprite.Sprite):
         self.speed = 1
         self.direction_x = random.choice([-2, 2])
         self.direction_y = random.choice([-2, 2])
-        self.sound_effect = pygame.mixer.Sound("game_sounds/health_refill.wav")
+        self.sound_effect = pygame.mixer.Sound("game_sounds/refill/health_refill.wav")
 
     def update(self):
         self.rect.y += self.speed * self.direction_y
         self.rect.x += self.speed * self.direction_x
-
-        if random.randint(0, 100) == 0:
-            self.direction_x *= -1
-            self.direction_y *= -1
-
         self.rect.left = max(self.rect.left, 0)
         self.rect.right = min(self.rect.right, WIDTH)
         self.rect.top = max(self.rect.top, 0)
         self.rect.bottom = min(self.rect.bottom, HEIGHT)
+        if random.randint(0, 50) == 0:
+            self.direction_x *= - 1
+            self.direction_y *= - 1
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
+
+class DoubleRefill(pygame.sprite.Sprite):
+
+    def __init__(self, x, y, image):
+        super().__init__()
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = 1
+        self.direction_x = random.choice([-2, 2])
+        self.direction_y = random.choice([-2, 2])
+        self.sound_effect = pygame.mixer.Sound("game_sounds/refill/double_refill.mp3")
+
+    def update(self):
+        self.rect.y += self.speed * self.direction_y
+        self.rect.x += self.speed * self.direction_x
+        self.rect.left = max(self.rect.left, 0)
+        self.rect.right = min(self.rect.right, WIDTH)
+        self.rect.top = max(self.rect.top, 0)
+        self.rect.bottom = min(self.rect.bottom, HEIGHT)
+        if random.randint(0, 50) == 0:
+            self.direction_x *= - 1
+            self.direction_y *= - 1
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
@@ -109,6 +134,7 @@ class Meteors(pygame.sprite.Sprite):
 
 
 class Player:
+
     def __init__(self):
         self.rect = pygame.Rect(WIDTH//2 - 100, HEIGHT - 100, 100, 100)
         self.speed = 10
@@ -117,6 +143,7 @@ class Player:
 
 
 class Explosion(pygame.sprite.Sprite):
+
     def __init__(self, center, explosion_images):
         super().__init__()
         self.explosion_images = explosion_images
@@ -152,6 +179,7 @@ class Explosion(pygame.sprite.Sprite):
 
 
 class Enemy(pygame.sprite.Sprite):
+
     def __init__(self, x, y, image):
         super().__init__()
         self.image = image
