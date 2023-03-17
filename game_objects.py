@@ -7,7 +7,7 @@ class Bullet(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load('images/bullet.png').convert_alpha()
+        self.image = pygame.image.load('images/bullets/bullet1.png').convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y - 10
@@ -89,7 +89,7 @@ class DoubleRefill(pygame.sprite.Sprite):
         self.speed = 1
         self.direction_x = random.choice([-2, 2])
         self.direction_y = random.choice([-2, 2])
-        self.sound_effect = pygame.mixer.Sound("game_sounds/refill/double_refill.mp3")
+        self.sound_effect = pygame.mixer.Sound("game_sounds/refill/double_refill.wav")
 
     def update(self):
         self.rect.y += self.speed * self.direction_y
@@ -106,6 +106,33 @@ class DoubleRefill(pygame.sprite.Sprite):
         surface.blit(self.image, self.rect)
 
 
+WHITE = (255, 255, 255)
+
+class ExtraScore(pygame.sprite.Sprite):
+
+    def __init__(self, x, y, image):
+        super().__init__()
+        self.original_image = image
+        self.image = self.original_image.copy()
+        self.rect = self.image.get_rect()
+        self.speed = 2
+        self.rect.x = x
+        self.rect.y = y
+        self.direction_x = 0
+        self.direction_y = 1
+        self.sound_effect = pygame.mixer.Sound("game_sounds/refill/extra_score.mp3")
+
+    def update(self):
+        self.rect.y += self.speed * self.direction_y
+
+        if self.rect.bottom >= HEIGHT - 1:
+            self.kill()
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
+
+
 class Meteors(pygame.sprite.Sprite):
 
     def __init__(self, x, y, image):
@@ -118,6 +145,7 @@ class Meteors(pygame.sprite.Sprite):
         self.direction_x = 0
         self.direction_y = 1
         self.angle = 0
+        self.speed = 2
 
     def update(self):
         self.rect.y += self.speed * self.direction_y
