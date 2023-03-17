@@ -21,7 +21,6 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.top <= 1:
             self.kill()
 
-
 class BulletRefill(pygame.sprite.Sprite):
 
     def __init__(self, x, y, image):
@@ -132,7 +131,6 @@ class ExtraScore(pygame.sprite.Sprite):
         surface.blit(self.image, self.rect)
 
 
-
 class Meteors(pygame.sprite.Sprite):
 
     def __init__(self, x, y, image):
@@ -206,7 +204,7 @@ class Explosion(pygame.sprite.Sprite):
                     self.sound_played = True
 
 
-class Enemy(pygame.sprite.Sprite):
+class Enemy1(pygame.sprite.Sprite):
 
     def __init__(self, x, y, image):
         super().__init__()
