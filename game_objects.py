@@ -21,6 +21,7 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.top <= 1:
             self.kill()
 
+
 class BulletRefill(pygame.sprite.Sprite):
 
     def __init__(self, x, y, image):
@@ -106,6 +107,7 @@ class DoubleRefill(pygame.sprite.Sprite):
 
 
 WHITE = (255, 255, 255)
+
 
 class ExtraScore(pygame.sprite.Sprite):
 
