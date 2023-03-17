@@ -247,25 +247,26 @@ while running:
             bullet.kill()
             score += 20
 
-    player_life_surface = pygame.font.SysFont('Impact', 30).render(f'HEALTH: {player_life}', True, (255, 255, 255))
+    player_life_surface = pygame.font.SysFont('Impact', 20).render(f'HEALTH: {player_life}', True, (255, 255, 255))
     life_x_pos = 10
     screen.blit(player_life_surface, (life_x_pos, 10))
 
-    bullet_counter_surface = pygame.font.SysFont('Impact', 30).render(f'BULLETS: {bullet_counter}', True, (255, 255, 255))
+    bullet_counter_surface = pygame.font.SysFont('Impact', 20).render(f'BULLETS: {bullet_counter}', True, (176, 196, 222))
     bullet_x_pos = 10
     bullet_y_pos = player_life_surface.get_height() + 20
     screen.blit(bullet_counter_surface, (bullet_x_pos, bullet_y_pos))
 
-    score_surface = pygame.font.SysFont('Impact', 30).render(f'SCORE: {score}', True, (255, 255, 255))
+    score_surface = pygame.font.SysFont('Impact', 30).render(f'SCORE: {score}', True, (238, 232, 170))
     score_x_pos = WIDTH - score_surface.get_width() - 10
     score_y_pos = 10
     screen.blit(score_surface, (score_x_pos, score_y_pos))
 
 
-    hi_score_surface = pygame.font.SysFont('Impact', 30).render(f'HI-SCORE: {hi_score}', True, (255, 255, 255))
-    hi_score_x_pos = WIDTH - score_surface.get_width() - 40
-    hi_score_y_pos = score_surface.get_height() + 20
+    hi_score_surface = pygame.font.SysFont('Impact', 20).render(f'HI-SCORE: {hi_score}', True, (255, 192, 203))
+    hi_score_x_pos = 10
+    hi_score_y_pos = bullet_counter_surface.get_height() + 60
     screen.blit(hi_score_surface, (hi_score_x_pos, hi_score_y_pos))
+
 
     pygame.display.flip()
 
