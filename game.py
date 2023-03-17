@@ -90,7 +90,7 @@ while running:
         hi_score = score
 
     # random objects (BulletRefill, HealthRefill, DoubleRefill, Meteors)
-    if random.randint(0, 100) == 0:
+    if random.randint(0, 50) == 0:
         enemy_img = random.choice(enemy1_img)
         enemy_object = Enemy1(
             random.randint(100, WIDTH - 50),
@@ -99,21 +99,6 @@ while running:
         )
         enemy1_group.add(enemy_object)
 
-    if random.randint(0, 300) == 0:
-        bullet_refill = BulletRefill(
-            random.randint(40, WIDTH - 30),
-            random.randint(-HEIGHT, -30),
-            bullet_refill_img,
-        )
-        bullet_refill_group.add(bullet_refill)
-
-    if random.randint(0, 300) == 0:
-        health_refill = HealthRefill(
-            random.randint(50, WIDTH - 30),
-            random.randint(-HEIGHT, -30),
-            health_refill_img,
-        )
-        health_refill_group.add(health_refill)
 
     if random.randint(0, 50) == 0:
         extra_score = ExtraScore(
@@ -270,12 +255,20 @@ while running:
             score += 50
 
             if random.randint(0, 4) == 0:
-                double_refill = DoubleRefill(
+                bullet_refill = BulletRefill(
                     enemy_object.rect.centerx,
                     enemy_object.rect.centery,
-                    double_refill_img,
+                    bullet_refill_img,
                 )
-                double_refill_group.add(double_refill)
+                double_refill_group.add(bullet_refill)
+
+            if random.randint(0, 300) == 0:
+                health_refill = HealthRefill(
+                    random.randint(50, WIDTH - 30),
+                    random.randint(-HEIGHT, -30),
+                    health_refill_img,
+                )
+                health_refill_group.add(health_refill)
 
     player_image_copy = player.image.copy()
     screen.blit(player_image_copy, player.rect)
