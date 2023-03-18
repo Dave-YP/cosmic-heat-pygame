@@ -1,7 +1,8 @@
 import pygame
 import random
 
-from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill, Meteors, Bullet, DoubleRefill, ExtraScore
+from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill
+from game_objects import Meteors, Bullet, DoubleRefill, ExtraScore, BlackHole
 from game_controls import move_player
 from constants import WIDTH, HEIGHT, FPS
 from game_functions import show_game_over, music_background
@@ -21,6 +22,7 @@ health_refill_group = pygame.sprite.Group()
 double_refill_group = pygame.sprite.Group()
 meteor_group = pygame.sprite.Group()
 extra_score_group = pygame.sprite.Group()
+black_hole_group = pygame.sprite.Group()
 
 bg_y_shift = -HEIGHT
 background_img = pygame.image.load('images/background.jpg').convert()
@@ -48,6 +50,10 @@ meteor_imgs = [
     pygame.image.load('images/meteors/meteor4.png').convert_alpha()
 ]
 extra_score_img = pygame.image.load('images/score/score_coin.png').convert_alpha()
+black_hole_imgs = [
+    pygame.image.load('images/hole/black_hole.png').convert_alpha(),
+    pygame.image.load('images/hole/black_hole2.png').convert_alpha()
+]
 
 initial_player_pos = (WIDTH // 2, HEIGHT - 100)
 
@@ -83,14 +89,13 @@ while running:
     if bg_y_shift >= 0:
         bg_y_shift = -HEIGHT
 
-    if score > 5000:
+    if score > 3000:
         bg_y_shift += 2
 
     if score > 10000:
         bg_y_shift += 3
 
-
-    if score >= 5000 and not new_background_activated:
+    if score >= 3000 and not new_background_activated:
         current_image = background_img2
         background_top = background_img2.copy()
         new_background_activated = True
@@ -116,8 +121,6 @@ while running:
     background_top_rect = background_top.get_rect(topleft=(0, bg_y_shift))
     background_top_rect.top = bg_y_shift + HEIGHT
     screen.blit(background_top, background_top_rect)
-
-
 
     if score > hi_score:
         hi_score = score
@@ -150,6 +153,15 @@ while running:
         )
         meteor_group.add(meteor_object)
 
+    if score > 3000 and random.randint(0, 500) == 0:
+        black_hole_img = random.choice(black_hole_imgs)
+        black_hole_object = BlackHole(
+            random.randint(100, WIDTH - 50),
+            random.randint(-HEIGHT, -50 - black_hole_img.get_rect().height),
+            black_hole_img,
+        )
+        black_hole_group.add(black_hole_object)
+
     if player_life <= 0:
         show_game_over(score)
         score = 0
@@ -161,10 +173,26 @@ while running:
         health_refill_group.empty()
         double_refill_group.empty()
         extra_score_group.empty()
+        black_hole_group.empty()
         meteor_group.empty()
         enemy1_group.empty()
         explosions.empty()
     # 777
+    for black_hole_object in black_hole_group:
+        black_hole_object.update()
+        black_hole_object.draw(screen)
+
+        if black_hole_object.rect.colliderect(player.rect):
+            player_life -= 1
+        if score >= 3000:
+            meteor_object.speed = 4
+        if score >= 10000:
+            meteor_object.speed = 6
+        if score >= 15000:
+            meteor_object.speed = 8
+        if score >= 20000:
+            meteor_object.speed = 10
+
     for bullet_refill in bullet_refill_group:
 
         bullet_refill.update()
@@ -205,14 +233,14 @@ while running:
             extra_score.kill()
             extra_score.sound_effect.play()
 
-        if score >= 5000:
-            extra_score.speed = 4
+        if score >= 3000:
+            extra_score.speed = 2
         if score >= 10000:
-            extra_score.speed = 6
+            extra_score.speed = 4
         if score >= 15000:
-            extra_score.speed = 8
+            extra_score.speed = 6
         if score >= 20000:
-            extra_score.speed = 10
+            extra_score.speed = 8
 
         # print(f"Extra Score speed: {extra_score.speed:.2f}")
 
@@ -260,7 +288,7 @@ while running:
                 )
                 double_refill_group.add(double_refill)
 
-        if score >= 5000:
+        if score >= 3000:
             meteor_object.speed = 4
         if score >= 10000:
             meteor_object.speed = 6
@@ -296,13 +324,15 @@ while running:
                 )
                 bullet_refill_group.add(bullet_refill)
 
-            if random.randint(0, 300) == 0:
+            if random.randint(0, 4) == 0:
                 health_refill = HealthRefill(
                     random.randint(50, WIDTH - 30),
                     random.randint(-HEIGHT, -30),
                     health_refill_img,
                 )
                 health_refill_group.add(health_refill)
+
+
 
     player_image_copy = player.image.copy()
     screen.blit(player_image_copy, player.rect)
