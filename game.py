@@ -1,5 +1,8 @@
+import sys
+
 import pygame
 import random
+
 
 from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill
 from game_objects import Meteors, Bullet, DoubleRefill, ExtraScore, BlackHole
@@ -25,11 +28,11 @@ extra_score_group = pygame.sprite.Group()
 black_hole_group = pygame.sprite.Group()
 
 bg_y_shift = -HEIGHT
-background_img = pygame.image.load('images/background.jpg').convert()
-background_img2 = pygame.image.load('images/background2.png').convert()
-background_img3 = pygame.image.load('images/background3.png').convert()
-background_img4 = pygame.image.load('images/background4.png').convert()
-background_img5 = pygame.image.load('images/background5.png').convert()
+background_img = pygame.image.load('images/bg/background.jpg').convert()
+background_img2 = pygame.image.load('images/bg/background2.png').convert()
+background_img3 = pygame.image.load('images/bg/background3.png').convert()
+background_img4 = pygame.image.load('images/bg/background4.png').convert()
+background_img5 = pygame.image.load('images/bg/background5.png').convert()
 background_top = background_img.copy()
 current_image = background_img
 new_background_activated = False
@@ -61,8 +64,9 @@ score = 0
 hi_score = 0
 player = Player()
 player_life = 100
-bullet_counter = 200
+bullet_counter = 100
 
+paused = False
 running = True
 
 while running:
@@ -70,20 +74,42 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
+
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and not paused:
 
                 if bullet_counter > 0:
                     bullet = Bullet(player.rect.centerx, player.rect.top)
                     bullets.add(bullet)
                     bullet_counter -= 1
+            elif event.key == pygame.K_ESCAPE:
+
+                sys.exit(0)
+            elif event.key == pygame.K_p:
+
+                paused = not paused
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE and player.original_image != None:
                 player.image = player.original_image.copy()
 
+    if paused:
+        font = pygame.font.SysFont('Impact', 40)
+        text = font.render("PAUSE", True, (255, 255, 255))
+        text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
+        screen.blit(text, text_rect)
+        pygame.display.flip()
+        continue
+
     keys = pygame.key.get_pressed()
-    move_player(keys, player)
+
+    if not paused:
+        move_player(keys, player)
+
+        screen.blit(current_image, (0, bg_y_shift))
+        background_top_rect = background_top.get_rect(topleft=(0, bg_y_shift))
+        background_top_rect.top = bg_y_shift + HEIGHT
+        screen.blit(background_top, background_top_rect)
 
     bg_y_shift += 1
     if bg_y_shift >= 0:
@@ -153,7 +179,7 @@ while running:
         )
         meteor_group.add(meteor_object)
 
-    if score > 3000 and random.randint(0, 500) == 0:
+    if score > 3000 and random.randint(0, 400) == 0:
         black_hole_img = random.choice(black_hole_imgs)
         black_hole_object = BlackHole(
             random.randint(100, WIDTH - 50),
@@ -201,10 +227,10 @@ while running:
         bullet_refill.draw(screen)
 
         if player.rect.colliderect(bullet_refill.rect):
-            if bullet_counter < 200:
+            if bullet_counter < 100:
                 bullet_counter += 20
-                if bullet_counter > 200:
-                    bullet_counter = 200
+                if bullet_counter > 100:
+                    bullet_counter = 100
                 bullet_refill.kill()
                 bullet_refill.sound_effect.play()
             else:
@@ -255,10 +281,10 @@ while running:
                 player_life += 50
                 if player_life > 100:
                     player_life = 100
-            if bullet_counter < 200:
+            if bullet_counter < 100:
                 bullet_counter += 50
-                if bullet_counter > 200:
-                    bullet_counter = 200
+                if bullet_counter > 100:
+                    bullet_counter = 100
                 double_refill.kill()
                 double_refill.sound_effect.play()
             else:
@@ -334,7 +360,7 @@ while running:
                     health_refill_img,
                 )
                 health_refill_group.add(health_refill)
- 
+
     player_image_copy = player.image.copy()
     screen.blit(player_image_copy, player.rect)
 
