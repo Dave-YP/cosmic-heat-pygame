@@ -24,9 +24,13 @@ extra_score_group = pygame.sprite.Group()
 
 bg_y_shift = -HEIGHT
 background_img = pygame.image.load('images/background.jpg').convert()
-background_img_top = background_img.copy()
-background_img_top_rect = background_img_top.get_rect(topleft=(0, bg_y_shift))
-background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
+background_img2 = pygame.image.load('images/background2.png').convert()
+background_img3 = pygame.image.load('images/background3.png').convert()
+background_img4 = pygame.image.load('images/background4.png').convert()
+background_img5 = pygame.image.load('images/background5.png').convert()
+background_top = background_img.copy()
+current_image = background_img
+new_background_activated = False
 
 explosion_images = [pygame.image.load(f"images/explosion/explosion{i}.png") for i in range(18)]
 enemy1_img = [
@@ -79,12 +83,41 @@ while running:
     if bg_y_shift >= 0:
         bg_y_shift = -HEIGHT
 
-    if score > 1000:
-       bg_y_shift += 2
+    if score > 5000:
+        bg_y_shift += 2
 
-    screen.blit(background_img, (0, bg_y_shift))
-    screen.blit(background_img_top, background_img_top_rect)
-    background_img_top_rect.top = bg_y_shift + HEIGHT
+    if score > 10000:
+        bg_y_shift += 3
+
+
+    if score >= 5000 and not new_background_activated:
+        current_image = background_img2
+        background_top = background_img2.copy()
+        new_background_activated = True
+
+    if score >= 10000 and new_background_activated:
+        current_image = background_img3
+        background_top = background_img3.copy()
+
+    if score >= 15000 and new_background_activated:
+        current_image = background_img4
+        background_top = background_img4.copy()
+
+    if score >= 20000 and new_background_activated:
+        current_image = background_img5
+        background_top = background_img5.copy()
+
+    if score == 0:
+        current_image = background_img
+        background_top = background_img.copy()
+        new_background_activated = False
+
+    screen.blit(current_image, (0, bg_y_shift))
+    background_top_rect = background_top.get_rect(topleft=(0, bg_y_shift))
+    background_top_rect.top = bg_y_shift + HEIGHT
+    screen.blit(background_top, background_top_rect)
+
+
 
     if score > hi_score:
         hi_score = score
@@ -98,7 +131,6 @@ while running:
             enemy_img,
         )
         enemy1_group.add(enemy_object)
-
 
     if random.randint(0, 50) == 0:
         extra_score = ExtraScore(
@@ -173,13 +205,13 @@ while running:
             extra_score.kill()
             extra_score.sound_effect.play()
 
-        if score >= 1000:
+        if score >= 5000:
             extra_score.speed = 4
-        if score >= 2000:
+        if score >= 10000:
             extra_score.speed = 6
-        if score >= 4000:
+        if score >= 15000:
             extra_score.speed = 8
-        if score >= 6000:
+        if score >= 20000:
             extra_score.speed = 10
 
         # print(f"Extra Score speed: {extra_score.speed:.2f}")
@@ -211,6 +243,7 @@ while running:
             explosion = Explosion(meteor_object.rect.center, explosion_images)
             explosions.add(explosion)
             meteor_object.kill()
+            score += 15
 
         bullet_collisions = pygame.sprite.spritecollide(meteor_object, bullets, True)
         for bullet_collision in bullet_collisions:
@@ -227,13 +260,13 @@ while running:
                 )
                 double_refill_group.add(double_refill)
 
-        if score >= 1000:
+        if score >= 5000:
             meteor_object.speed = 4
-        if score >= 2000:
+        if score >= 10000:
             meteor_object.speed = 6
-        if score >= 4000:
+        if score >= 15000:
             meteor_object.speed = 8
-        if score >= 8000:
+        if score >= 20000:
             meteor_object.speed = 10
         # print(f"Meteor Score speed: {meteor_object.speed:.2f}")
 
@@ -246,6 +279,7 @@ while running:
             explosion = Explosion(enemy_object.rect.center, explosion_images)
             explosions.add(explosion)
             enemy_object.kill()
+            score += 25
 
         bullet_collisions = pygame.sprite.spritecollide(enemy_object, bullets, True)
         for bullet_collision in bullet_collisions:
@@ -260,7 +294,7 @@ while running:
                     enemy_object.rect.centery,
                     bullet_refill_img,
                 )
-                double_refill_group.add(bullet_refill)
+                bullet_refill_group.add(bullet_refill)
 
             if random.randint(0, 300) == 0:
                 health_refill = HealthRefill(
