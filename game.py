@@ -61,7 +61,7 @@ score = 0
 hi_score = 0
 player = Player()
 player_life = 100
-bullet_counter = 100
+bullet_counter = 200
 
 running = True
 
@@ -184,14 +184,16 @@ while running:
 
         if black_hole_object.rect.colliderect(player.rect):
             player_life -= 1
-        if score >= 3000:
+            black_hole_object.sound_effect.play()
+
+        if score >= 5000:
             meteor_object.speed = 4
         if score >= 10000:
-            meteor_object.speed = 6
+            meteor_object.speed = 4
         if score >= 15000:
-            meteor_object.speed = 8
+            meteor_object.speed = 6
         if score >= 20000:
-            meteor_object.speed = 10
+            meteor_object.speed = 8
 
     for bullet_refill in bullet_refill_group:
 
@@ -199,10 +201,10 @@ while running:
         bullet_refill.draw(screen)
 
         if player.rect.colliderect(bullet_refill.rect):
-            if bullet_counter < 100:
-                bullet_counter += 10
-                if bullet_counter > 100:
-                    bullet_counter = 100
+            if bullet_counter < 200:
+                bullet_counter += 20
+                if bullet_counter > 200:
+                    bullet_counter = 200
                 bullet_refill.kill()
                 bullet_refill.sound_effect.play()
             else:
@@ -215,7 +217,7 @@ while running:
 
         if player.rect.colliderect(health_refill.rect):
             if player_life < 100:
-                player_life += 10
+                player_life += 20
                 if player_life > 100:
                     player_life = 100
                 health_refill.kill()
@@ -229,7 +231,7 @@ while running:
         extra_score.draw(screen)
 
         if player.rect.colliderect(extra_score.rect):
-            score += 10
+            score += 20
             extra_score.kill()
             extra_score.sound_effect.play()
 
@@ -253,9 +255,10 @@ while running:
                 player_life += 50
                 if player_life > 100:
                     player_life = 100
+            if bullet_counter < 200:
                 bullet_counter += 50
-                if bullet_counter > 100:
-                    bullet_counter = 100
+                if bullet_counter > 200:
+                    bullet_counter = 200
                 double_refill.kill()
                 double_refill.sound_effect.play()
             else:
@@ -331,9 +334,7 @@ while running:
                     health_refill_img,
                 )
                 health_refill_group.add(health_refill)
-
-
-
+ 
     player_image_copy = player.image.copy()
     screen.blit(player_image_copy, player.rect)
 

@@ -1,5 +1,6 @@
 ![alt text](images/logo.png "Capital_2050")
 ![alt text](images/gameplay2.png "Геймлей")
+![alt text](images/gameplay3.png "Геймлей")
 # Capital_2050
 ## Запуск игры:
  - git clone https://github.com/Dave-YP/Capital_2050.git
@@ -9,4 +10,6 @@
  - pip install -r requirements.txt
 
  - запускаем menu.py из терминала в папке Capital_2050
- - стрелять: пробел, передвижение: стрелки
+ ## Управление:
+ - стрелять - пробел
+ - передвижение - стрелки

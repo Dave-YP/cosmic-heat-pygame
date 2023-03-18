@@ -89,7 +89,7 @@ class DoubleRefill(pygame.sprite.Sprite):
         self.speed = 1
         self.direction_x = random.choice([-2, 2])
         self.direction_y = random.choice([-2, 2])
-        self.sound_effect = pygame.mixer.Sound("game_sounds/refill/double_refill.wav")
+        self.sound_effect = pygame.mixer.Sound("game_sounds/refill/double_refill.mp3")
 
     def update(self):
         self.rect.y += self.speed * self.direction_y
@@ -180,7 +180,7 @@ class Explosion(pygame.sprite.Sprite):
         self.rect.center = center
         self.frame = 0
         self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 100
+        self.frame_rate = 50
         self.explosion_sounds = [
             pygame.mixer.Sound('game_sounds/explosions/explosion1.wav'),
             pygame.mixer.Sound('game_sounds/explosions/explosion2.wav'),
@@ -258,6 +258,7 @@ class Enemy1(pygame.sprite.Sprite):
                 self.rect.move_ip(-repel_vec.x, -repel_vec.y)
                 other_enemy.rect.move_ip(repel_vec.x, repel_vec.y)
 
+
 class BlackHole(pygame.sprite.Sprite):
 
     def __init__(self, x, y, image):
@@ -270,17 +271,19 @@ class BlackHole(pygame.sprite.Sprite):
         self.direction_x = 0
         self.direction_y = 1
         self.angle = 0
-        self.speed = 1
+        self.speed = 2
+        self.sound_effect = pygame.mixer.Sound("game_sounds/damage/black_hole.mp3")
 
     def update(self):
         self.rect.y += self.speed * self.direction_y
 
-        if self.rect.bottom >= HEIGHT - 10:
+        if self.rect.bottom >= HEIGHT + 300:
             self.kill()
 
         self.angle = (self.angle - 1) % 360
         self.image = pygame.transform.rotozoom(self.original_image, self.angle, 1)
         self.rect = self.image.get_rect(center=self.rect.center)
+
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
