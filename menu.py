@@ -35,13 +35,10 @@ while show_menu:
             x, y = event.pos
             if play_button_rect.collidepoint(x, y):
                 show_menu = False
-                import game
-                game.main()
                 break
             elif quit_button_rect.collidepoint(x, y):
                 show_menu = False
                 break
-
 
     screen.blit(mainmenu_img, (0, 0))
 
