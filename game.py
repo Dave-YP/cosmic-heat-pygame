@@ -125,8 +125,6 @@ while running:
     if score > 3000:
         bg_y_shift += 2
 
-    if score > 10000:
-        bg_y_shift += 3
 
     if score >= 3000 and not new_background_activated:
         current_image = background_img2
@@ -326,7 +324,7 @@ while running:
             meteor_object.kill()
             score += 60
 
-            if random.randint(0, 40) == 0:
+            if random.randint(0, 20) == 0:
                 double_refill = DoubleRefill(
                     meteor_object.rect.centerx,
                     meteor_object.rect.centery,
@@ -362,7 +360,7 @@ while running:
             meteor2_object.kill()
             score += 40
 
-            if random.randint(0, 40) == 0:
+            if random.randint(0, 20) == 0:
                 double_refill = DoubleRefill(
                     meteor2_object.rect.centerx,
                     meteor2_object.rect.centery,
