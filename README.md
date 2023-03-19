@@ -1,6 +1,6 @@
 ![alt text](images/logo.png "Capital_2050")
 ![alt text](images/gameplay1.png "Геймлей")
-![alt text](images/gameplay3.png "Геймлей")
+![alt text](images/gameplay2.png "Геймлей")
 ![alt text](images/gameplay3.png "Геймлей")
 # Capital_2050
 ## Запуск игры:
