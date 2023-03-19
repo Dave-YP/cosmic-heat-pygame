@@ -5,7 +5,7 @@ import random
 
 
 from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill
-from game_objects import Meteors, Bullet, DoubleRefill, ExtraScore, BlackHole
+from game_objects import Meteors, Meteors2, Bullet, DoubleRefill, ExtraScore, BlackHole
 from game_controls import move_player
 from constants import WIDTH, HEIGHT, FPS
 from game_functions import show_game_over, music_background
@@ -24,6 +24,7 @@ bullet_refill_group = pygame.sprite.Group()
 health_refill_group = pygame.sprite.Group()
 double_refill_group = pygame.sprite.Group()
 meteor_group = pygame.sprite.Group()
+meteor2_group = pygame.sprite.Group()
 extra_score_group = pygame.sprite.Group()
 black_hole_group = pygame.sprite.Group()
 
@@ -47,10 +48,16 @@ health_refill_img = pygame.image.load('images/refill/health_refill.png').convert
 bullet_refill_img = pygame.image.load('images/refill/bullet_refill.png').convert_alpha()
 double_refill_img = pygame.image.load('images/refill/double_refill.png').convert_alpha()
 meteor_imgs = [
-    pygame.image.load('images/meteors/meteor1.png').convert_alpha(),
-    pygame.image.load('images/meteors/meteor2.png').convert_alpha(),
-    pygame.image.load('images/meteors/meteor3.png').convert_alpha(),
-    pygame.image.load('images/meteors/meteor4.png').convert_alpha()
+    pygame.image.load('images/meteors/meteor_1.png').convert_alpha(),
+    pygame.image.load('images/meteors/meteor_2.png').convert_alpha(),
+    pygame.image.load('images/meteors/meteor_3.png').convert_alpha(),
+    pygame.image.load('images/meteors/meteor_4.png').convert_alpha()
+]
+meteor2_imgs = [
+    pygame.image.load('images/meteors/meteor2_1.png').convert_alpha(),
+    pygame.image.load('images/meteors/meteor2_2.png').convert_alpha(),
+    pygame.image.load('images/meteors/meteor2_3.png').convert_alpha(),
+    pygame.image.load('images/meteors/meteor2_4.png').convert_alpha()
 ]
 extra_score_img = pygame.image.load('images/score/score_coin.png').convert_alpha()
 black_hole_imgs = [
@@ -170,14 +177,23 @@ while running:
 
         extra_score_group.add(extra_score)
 
-    if random.randint(0, 100) == 0:
+    if score > 3000 and random.randint(0, 100) == 0:
         meteor_img = random.choice(meteor_imgs)
         meteor_object = Meteors(
-            random.randint(100, WIDTH - 50),
-            random.randint(-HEIGHT, -50 - meteor_img.get_rect().height),
+            random.randint(0, 50),
+            random.randint(0, 50),
             meteor_img,
         )
         meteor_group.add(meteor_object)
+
+    if random.randint(0, 100) == 0:
+        meteor2_img = random.choice(meteor2_imgs)
+        meteor2_object = Meteors2(
+            random.randint(100, WIDTH - 50),
+            random.randint(-HEIGHT, -50 - meteor2_img.get_rect().height),
+            meteor2_img,
+        )
+        meteor2_group.add(meteor2_object)
 
     if score > 3000 and random.randint(0, 400) == 0:
         black_hole_img = random.choice(black_hole_imgs)
@@ -201,6 +217,7 @@ while running:
         extra_score_group.empty()
         black_hole_group.empty()
         meteor_group.empty()
+        meteor2_group.empty()
         enemy1_group.empty()
         explosions.empty()
     # 777
@@ -300,14 +317,14 @@ while running:
             explosion = Explosion(meteor_object.rect.center, explosion_images)
             explosions.add(explosion)
             meteor_object.kill()
-            score += 15
+            score += 30
 
         bullet_collisions = pygame.sprite.spritecollide(meteor_object, bullets, True)
         for bullet_collision in bullet_collisions:
             explosion = Explosion(meteor_object.rect.center, explosion_images)
             explosions.add(explosion)
             meteor_object.kill()
-            score += 30
+            score += 60
 
             if random.randint(0, 4) == 0:
                 double_refill = DoubleRefill(
@@ -326,6 +343,41 @@ while running:
         if score >= 20000:
             meteor_object.speed = 10
         # print(f"Meteor Score speed: {meteor_object.speed:.2f}")
+
+    for meteor2_object in meteor2_group:
+        meteor2_object.update()
+        meteor2_object.draw(screen)
+
+        if meteor2_object.rect.colliderect(player.rect):
+            player_life -= 10
+            explosion = Explosion(meteor2_object.rect.center, explosion_images)
+            explosions.add(explosion)
+            meteor2_object.kill()
+            score += 20
+
+        bullet_collisions = pygame.sprite.spritecollide(meteor2_object, bullets, True)
+        for bullet_collision in bullet_collisions:
+            explosion = Explosion(meteor2_object.rect.center, explosion_images)
+            explosions.add(explosion)
+            meteor2_object.kill()
+            score += 40
+
+            if random.randint(0, 8) == 0:
+                double_refill = DoubleRefill(
+                    meteor2_object.rect.centerx,
+                    meteor2_object.rect.centery,
+                    double_refill_img,
+                )
+                double_refill_group.add(double_refill)
+
+        if score >= 3000:
+            meteor2_object.speed = 4
+        if score >= 10000:
+            meteor2_object.speed = 6
+        if score >= 15000:
+            meteor2_object.speed = 8
+        if score >= 20000:
+            meteor2_object.speed = 10
 
     for enemy_object in enemy1_group:
         enemy_object.update(enemy1_group)
