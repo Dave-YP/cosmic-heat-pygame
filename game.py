@@ -159,7 +159,7 @@ while running:
         hi_score = score
 
     # random objects (BulletRefill, HealthRefill, DoubleRefill, Meteors)
-    if random.randint(0, 50) == 0:
+    if random.randint(0, 30) == 0:
         enemy_img = random.choice(enemy1_img)
         enemy_object = Enemy1(
             random.randint(100, WIDTH - 50),
@@ -326,7 +326,7 @@ while running:
             meteor_object.kill()
             score += 60
 
-            if random.randint(0, 4) == 0:
+            if random.randint(0, 40) == 0:
                 double_refill = DoubleRefill(
                     meteor_object.rect.centerx,
                     meteor_object.rect.centery,
@@ -362,7 +362,7 @@ while running:
             meteor2_object.kill()
             score += 40
 
-            if random.randint(0, 8) == 0:
+            if random.randint(0, 40) == 0:
                 double_refill = DoubleRefill(
                     meteor2_object.rect.centerx,
                     meteor2_object.rect.centery,
