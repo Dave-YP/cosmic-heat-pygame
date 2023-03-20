@@ -6,6 +6,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
+pygame.mixer.init()
 pygame.init()
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -22,6 +23,8 @@ logo_y = 50
 play_button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 25, 205, 50)
 quit_button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 50, 205, 50)
 
+pygame.mixer.music.load('game_sounds/menu.mp3')
+pygame.mixer.music.play(-1)
 
 show_menu = True
 
@@ -35,10 +38,13 @@ while show_menu:
             x, y = event.pos
             if play_button_rect.collidepoint(x, y):
                 show_menu = False
+                import game
+                game.main()
                 break
             elif quit_button_rect.collidepoint(x, y):
                 show_menu = False
                 break
+
 
     screen.blit(mainmenu_img, (0, 0))
 

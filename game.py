@@ -11,11 +11,14 @@ from constants import WIDTH, HEIGHT, FPS
 from game_functions import show_game_over, music_background
 
 
+
+
 pygame.init()
 music_background()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Capital 2050")
 clock = pygame.time.Clock()
+
 
 explosions = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
@@ -339,7 +342,7 @@ while running:
             meteor_object.kill()
             score += 60
 
-            if random.randint(0, 20) == 0:
+            if random.randint(0, 10) == 0:
                 double_refill = DoubleRefill(
                     meteor_object.rect.centerx,
                     meteor_object.rect.centery,
@@ -375,7 +378,7 @@ while running:
             meteor2_object.kill()
             score += 40
 
-            if random.randint(0, 20) == 0:
+            if random.randint(0, 10) == 0:
                 double_refill = DoubleRefill(
                     meteor2_object.rect.centerx,
                     meteor2_object.rect.centery,
