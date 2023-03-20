@@ -5,7 +5,7 @@ import random
 
 
 from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill
-from game_objects import Meteors, Meteors2, Bullet, DoubleRefill, ExtraScore, BlackHole
+from game_objects import Meteors, Meteors2, Bullet, DoubleRefill, ExtraScore, BlackHole, Enemy2
 from game_controls import move_player
 from constants import WIDTH, HEIGHT, FPS
 from game_functions import show_game_over, music_background
@@ -20,6 +20,7 @@ clock = pygame.time.Clock()
 explosions = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 enemy1_group = pygame.sprite.Group()
+enemy2_group = pygame.sprite.Group()
 bullet_refill_group = pygame.sprite.Group()
 health_refill_group = pygame.sprite.Group()
 double_refill_group = pygame.sprite.Group()
@@ -27,6 +28,7 @@ meteor_group = pygame.sprite.Group()
 meteor2_group = pygame.sprite.Group()
 extra_score_group = pygame.sprite.Group()
 black_hole_group = pygame.sprite.Group()
+enemy2_bullets = pygame.sprite.Group()
 
 bg_y_shift = -HEIGHT
 background_img = pygame.image.load('images/bg/background.jpg').convert()
@@ -40,9 +42,13 @@ new_background_activated = False
 
 explosion_images = [pygame.image.load(f"images/explosion/explosion{i}.png") for i in range(18)]
 enemy1_img = [
-    pygame.image.load('images/enemy1/enemy1.png').convert_alpha(),
-    pygame.image.load('images/enemy1/enemy2.png').convert_alpha(),
-    pygame.image.load('images/enemy1/enemy3.png').convert_alpha()
+    pygame.image.load('images/enemy/enemy1_1.png').convert_alpha(),
+    pygame.image.load('images/enemy/enemy1_2.png').convert_alpha(),
+    pygame.image.load('images/enemy/enemy1_3.png').convert_alpha()
+]
+enemy2_img = [
+    pygame.image.load('images/enemy/enemy2_1.png').convert_alpha(),
+    pygame.image.load('images/enemy/enemy2_2.png').convert_alpha()
 ]
 health_refill_img = pygame.image.load('images/refill/health_refill.png').convert_alpha()
 bullet_refill_img = pygame.image.load('images/refill/bullet_refill.png').convert_alpha()
@@ -97,7 +103,7 @@ while running:
                 paused = not paused
 
         elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_SPACE and player.original_image != None:
+            if event.key == pygame.K_SPACE and player.original_image is not None:
                 player.image = player.original_image.copy()
 
     if paused:
@@ -124,7 +130,6 @@ while running:
 
     if score > 3000:
         bg_y_shift += 2
-
 
     if score >= 3000 and not new_background_activated:
         current_image = background_img2
@@ -157,7 +162,7 @@ while running:
         hi_score = score
 
     # random objects (BulletRefill, HealthRefill, DoubleRefill, Meteors)
-    if random.randint(0, 30) == 0:
+    if random.randint(0, 50) == 0:
         enemy_img = random.choice(enemy1_img)
         enemy_object = Enemy1(
             random.randint(100, WIDTH - 50),
@@ -165,6 +170,15 @@ while running:
             enemy_img,
         )
         enemy1_group.add(enemy_object)
+
+    if score >= 5000 and random.randint(0, 40) == 0 and len(enemy2_group) < 2:
+        enemy_img = random.choice(enemy2_img)
+        enemy2_object = Enemy2(
+            random.randint(200, WIDTH - 100),
+            random.randint(-HEIGHT, -100),
+            enemy_img,
+        )
+        enemy2_group.add(enemy2_object)
 
     if random.randint(0, 50) == 0:
         extra_score = ExtraScore(
@@ -217,6 +231,7 @@ while running:
         meteor_group.empty()
         meteor2_group.empty()
         enemy1_group.empty()
+        enemy2_group.empty()
         explosions.empty()
     # 777
     for black_hole_object in black_hole_group:
@@ -243,7 +258,7 @@ while running:
 
         if player.rect.colliderect(bullet_refill.rect):
             if bullet_counter < 100:
-                bullet_counter += 20
+                bullet_counter += 50
                 if bullet_counter > 100:
                     bullet_counter = 100
                 bullet_refill.kill()
@@ -258,7 +273,7 @@ while running:
 
         if player.rect.colliderect(health_refill.rect):
             if player_life < 100:
-                player_life += 20
+                player_life += 50
                 if player_life > 100:
                     player_life = 100
                 health_refill.kill()
@@ -410,6 +425,39 @@ while running:
                     health_refill_img,
                 )
                 health_refill_group.add(health_refill)
+
+    for enemy2_object in enemy2_group:
+        enemy2_object.update(enemy2_group, enemy2_bullets, player)
+        enemy2_group.draw(screen)
+        enemy2_bullets.update()
+        enemy2_bullets.draw(screen)
+
+        if enemy2_object.rect.colliderect(player.rect):
+            player_life -= 10
+            explosion = Explosion(enemy2_object.rect.center, explosion_images)
+            explosions.add(explosion)
+            enemy2_object.kill()
+            score += 20
+
+        bullet_collisions = pygame.sprite.spritecollide(enemy2_object, bullets, True)
+        for bullet_collision in bullet_collisions:
+            explosion = Explosion(enemy2_object.rect.center, explosion_images)
+            explosions.add(explosion)
+            enemy2_object.kill()
+            score += 50
+
+            if random.randint(0, 20) == 0:
+                double_refill = DoubleRefill(
+                    enemy2_object.rect.centerx,
+                    enemy2_object.rect.centery,
+                    double_refill_img,
+                )
+                double_refill_group.add(double_refill)
+
+        for enemy2_bullet in enemy2_bullets:
+            if enemy2_bullet.rect.colliderect(player.rect):
+                player_life -= 10
+                enemy2_bullet.kill()
 
     player_image_copy = player.image.copy()
     screen.blit(player_image_copy, player.rect)
