@@ -6,11 +6,9 @@ import random
 
 from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill
 from game_objects import Meteors, Meteors2, Bullet, DoubleRefill, ExtraScore, BlackHole, Enemy2
-from game_controls import move_player
+from game_controls import move_player, move_player_with_joystick
 from constants import WIDTH, HEIGHT, FPS
 from game_functions import show_game_over, music_background
-
-
 
 
 pygame.init()
@@ -85,6 +83,11 @@ bullet_counter = 100
 paused = False
 running = True
 
+joystick = None
+if pygame.joystick.get_count() > 0:
+    joystick = pygame.joystick.Joystick(0)
+    joystick.init()
+
 while running:
 
     for event in pygame.event.get():
@@ -108,6 +111,15 @@ while running:
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE and player.original_image is not None:
                 player.image = player.original_image.copy()
+
+        elif event.type == pygame.JOYBUTTONDOWN:
+            if event.button == 0 and not paused:
+                if bullet_counter > 0:
+                    bullet = Bullet(player.rect.centerx, player.rect.top)
+                    bullets.add(bullet)
+                    bullet_counter -= 1
+    if joystick:
+        move_player_with_joystick(joystick, player)
 
     if paused:
         font = pygame.font.SysFont('Impact', 40)
