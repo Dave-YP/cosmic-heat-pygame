@@ -2,7 +2,7 @@
 ![alt text](images/gameplay19.png "Gameplay")
 ![alt text](images/gameplay17.png "Gameplay")
 
-# Cosmic_Heat
+# Cosmic Heat
 Just a communist 2D shooter from a neighboring parallel world. It was written using Python and Pygame. The game is still being updated. To control the player, you can use either the keyboard or a joystick.
 ## Game launch:
  - git clone https://github.com/Dave-YP/cosmic-heat.git
@@ -10,6 +10,8 @@ Just a communist 2D shooter from a neighboring parallel world. It was written us
  - python -m venv env
  - source env/Scripts/activate
  - pip install -r requirements.txt
+ - python game.py
+
  ## Controls:
  - shoot - SPACE
  - move - arrows
