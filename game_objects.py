@@ -30,7 +30,7 @@ class Enemy2Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y + 10
-        self.speed = 5
+        self.speed = 8
         self.shoot_sound = pygame.mixer.Sound('game_sounds/shooting/shoot2.wav')
         self.shoot_sound.play()
 
@@ -159,6 +159,44 @@ class Player:
         self.speed = 10
         self.image = pygame.image.load('images/player.png').convert_alpha()
         self.original_image = self.image.copy()
+        self.direction = 'down'
+
+    def move_left(self):
+        if self.rect.left > 0:
+            self.rect.x -= self.speed
+            self.direction = 'left'
+            self.image = pygame.transform.flip(self.original_image, True, False)
+
+    def move_right(self):
+        if self.rect.right < WIDTH:
+            self.rect.x += self.speed
+            self.direction = 'right'
+            self.image = self.original_image
+
+    def move_up(self):
+        if self.rect.top > 0:
+            self.rect.y -= self.speed
+            self.direction = 'up'
+
+    def move_down(self):
+        if self.rect.bottom < HEIGHT:
+            self.rect.y += self.speed
+            self.direction = 'down'
+
+    def stop(self):
+        pass
+
+    def stop_left(self):
+        pass
+
+    def stop_right(self):
+        pass
+
+    def stop_up(self):
+        pass
+
+    def stop_down(self):
+        pass
 
 
 class Explosion(pygame.sprite.Sprite):

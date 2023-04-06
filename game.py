@@ -3,20 +3,27 @@ import sys
 import pygame
 import random
 
-
 from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill
 from game_objects import Meteors, Meteors2, Bullet, DoubleRefill, ExtraScore, BlackHole, Enemy2
 from game_controls import move_player, move_player_with_joystick
 from constants import WIDTH, HEIGHT, FPS
 from game_functions import show_game_over, music_background
+from menu import show_menu, animate_screen
+
+
+def main():
+    pygame.mixer.music.stop()
+    pygame.mixer.music.load('game_sounds/game.mp3')
+    pygame.mixer.music.play(-1)
+    animate_screen()
 
 
 pygame.init()
 music_background()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Capital 2050")
+surface = pygame.Surface((WIDTH, HEIGHT))
+pygame.display.set_caption("Cosmic Heat")
 clock = pygame.time.Clock()
-
 
 explosions = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
@@ -36,7 +43,6 @@ background_img = pygame.image.load('images/bg/background.jpg').convert()
 background_img2 = pygame.image.load('images/bg/background2.png').convert()
 background_img3 = pygame.image.load('images/bg/background3.png').convert()
 background_img4 = pygame.image.load('images/bg/background4.png').convert()
-background_img5 = pygame.image.load('images/bg/background5.png').convert()
 background_top = background_img.copy()
 current_image = background_img
 new_background_activated = False
@@ -88,6 +94,10 @@ if pygame.joystick.get_count() > 0:
     joystick = pygame.joystick.Joystick(0)
     joystick.init()
 
+if show_menu:
+    import menu
+    menu.main()
+
 while running:
 
     for event in pygame.event.get():
@@ -96,21 +106,36 @@ while running:
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and not paused:
-
                 if bullet_counter > 0:
                     bullet = Bullet(player.rect.centerx, player.rect.top)
                     bullets.add(bullet)
                     bullet_counter -= 1
             elif event.key == pygame.K_ESCAPE:
-
                 sys.exit(0)
-            elif event.key == pygame.K_p:
-
+            elif event.key == pygame.K_p or event.key == pygame.K_PAUSE:
                 paused = not paused
+            elif not paused:
+                if event.key == pygame.K_LEFT:
+                    player.move_left()
+                elif event.key == pygame.K_RIGHT:
+                    player.move_right()
+                elif event.key == pygame.K_UP:
+                    player.move_up()
+                elif event.key == pygame.K_DOWN:
+                    player.move_down()
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE and player.original_image is not None:
                 player.image = player.original_image.copy()
+            elif not paused:
+                if event.key == pygame.K_LEFT:
+                    player.stop_left()
+                elif event.key == pygame.K_RIGHT:
+                    player.stop_right()
+                elif event.key == pygame.K_UP:
+                    player.stop_up()
+                elif event.key == pygame.K_DOWN:
+                    player.stop_down()
 
         elif event.type == pygame.JOYBUTTONDOWN:
             if event.button == 0 and not paused:
@@ -118,8 +143,12 @@ while running:
                     bullet = Bullet(player.rect.centerx, player.rect.top)
                     bullets.add(bullet)
                     bullet_counter -= 1
+            elif event.button == 7:
+                paused = not paused
+
     if joystick:
-        move_player_with_joystick(joystick, player)
+        if not paused:
+            move_player_with_joystick(joystick, player)
 
     if paused:
         font = pygame.font.SysFont('Impact', 40)
@@ -159,10 +188,6 @@ while running:
         current_image = background_img4
         background_top = background_img4.copy()
 
-    if score >= 20000 and new_background_activated:
-        current_image = background_img5
-        background_top = background_img5.copy()
-
     if score == 0:
         current_image = background_img
         background_top = background_img.copy()
@@ -176,8 +201,8 @@ while running:
     if score > hi_score:
         hi_score = score
 
-    # random objects (BulletRefill, HealthRefill, DoubleRefill, Meteors)
-    if random.randint(0, 50) == 0:
+
+    if random.randint(0, 40) == 0:
         enemy_img = random.choice(enemy1_img)
         enemy_object = Enemy1(
             random.randint(100, WIDTH - 50),
@@ -195,7 +220,7 @@ while running:
         )
         enemy2_group.add(enemy2_object)
 
-    if random.randint(0, 50) == 0:
+    if random.randint(0, 60) == 0:
         extra_score = ExtraScore(
             random.randint(50, WIDTH - 50),
             random.randint(-HEIGHT, -50 - extra_score_img.get_rect().height),
@@ -213,7 +238,7 @@ while running:
         )
         meteor_group.add(meteor_object)
 
-    if random.randint(0, 100) == 0:
+    if random.randint(0, 90) == 0:
         meteor2_img = random.choice(meteor2_imgs)
         meteor2_object = Meteors2(
             random.randint(100, WIDTH - 50),
@@ -222,7 +247,7 @@ while running:
         )
         meteor2_group.add(meteor2_object)
 
-    if score > 3000 and random.randint(0, 400) == 0:
+    if score > 3000 and random.randint(0, 500) == 0:
         black_hole_img = random.choice(black_hole_imgs)
         black_hole_object = BlackHole(
             random.randint(100, WIDTH - 50),
@@ -248,7 +273,7 @@ while running:
         enemy1_group.empty()
         enemy2_group.empty()
         explosions.empty()
-    # 777
+
     for black_hole_object in black_hole_group:
         black_hole_object.update()
         black_hole_object.draw(screen)
@@ -354,7 +379,7 @@ while running:
             meteor_object.kill()
             score += 60
 
-            if random.randint(0, 10) == 0:
+            if random.randint(0, 20) == 0:
                 double_refill = DoubleRefill(
                     meteor_object.rect.centerx,
                     meteor_object.rect.centery,
@@ -390,7 +415,7 @@ while running:
             meteor2_object.kill()
             score += 40
 
-            if random.randint(0, 10) == 0:
+            if random.randint(0, 20) == 0:
                 double_refill = DoubleRefill(
                     meteor2_object.rect.centerx,
                     meteor2_object.rect.centery,
@@ -425,7 +450,7 @@ while running:
             enemy_object.kill()
             score += 50
 
-            if random.randint(0, 4) == 0:
+            if random.randint(0, 8) == 0:
                 bullet_refill = BulletRefill(
                     enemy_object.rect.centerx,
                     enemy_object.rect.centery,
@@ -433,7 +458,7 @@ while running:
                 )
                 bullet_refill_group.add(bullet_refill)
 
-            if random.randint(0, 4) == 0:
+            if random.randint(0, 8) == 0:
                 health_refill = HealthRefill(
                     random.randint(50, WIDTH - 30),
                     random.randint(-HEIGHT, -30),
@@ -489,14 +514,36 @@ while running:
             bullet.kill()
             bullet_counter -= 1
 
-    player_life_surface = pygame.font.SysFont('Impact', 20).render(f'HEALTH: {player_life}', True, (152, 251, 152))
+
+    player_life_surface = pygame.Surface((200, 25), pygame.SRCALPHA, 32)
+    player_life_surface.set_alpha(216)
+    player_life_bar = pygame.Surface(((player_life / 100) * 200, 30), pygame.SRCALPHA, 32)
+    player_life_bar.set_alpha(216)
+    life_bar_image = pygame.image.load("images/life_bar.png").convert_alpha()
+    if player_life > 50:
+        player_life_bar.fill((152, 251, 152))
+    else:
+        player_life_bar.fill((0, 0, 0))
+    player_life_surface.blit(life_bar_image, (0, 0))
+    player_life_surface.blit(player_life_bar, (35, 0))
     life_x_pos = 10
     screen.blit(player_life_surface, (life_x_pos, 10))
 
-    bullet_counter_surface = pygame.font.SysFont('Impact', 20).render(f'BULLETS: {bullet_counter}', True, (176, 196, 222))
+    bullet_counter_surface = pygame.Surface((200, 25), pygame.SRCALPHA, 32)
+    bullet_counter_surface.set_alpha(216)
+    bullet_counter_bar = pygame.Surface(((bullet_counter / 100) * 200, 30), pygame.SRCALPHA, 32)
+    bullet_counter_bar.set_alpha(216)
+    bullet_bar_image = pygame.image.load("images/bullet_bar.png").convert_alpha()
+    if bullet_counter > 50:
+        bullet_counter_bar.fill((255, 23, 23))
+    else:
+        bullet_counter_bar.fill((0, 0, 0))
+    bullet_counter_surface.blit(bullet_bar_image, (0, 0))
+    bullet_counter_surface.blit(bullet_counter_bar, (35, 0))
     bullet_x_pos = 10
     bullet_y_pos = player_life_surface.get_height() + 20
     screen.blit(bullet_counter_surface, (bullet_x_pos, bullet_y_pos))
+
 
     score_surface = pygame.font.SysFont('Impact', 30).render(f'{score}', True, (238, 232, 170))
     score_image_rect = score_surface.get_rect()
@@ -505,9 +552,10 @@ while running:
     screen.blit(extra_score_img, (score_image_rect.right + 5, score_image_rect.centery - extra_score_img.get_height()//2))
     screen.blit(score_surface, score_image_rect)
 
-    hi_score_surface = pygame.font.SysFont('Impact', 20).render(f'HI-SCORE: {hi_score}', True, (255, 192, 203))
-    hi_score_x_pos = 10
-    hi_score_y_pos = bullet_counter_surface.get_height() + 60
+    hi_score_surface = pygame.font.SysFont('Impact', 20).render(f'HI-SCORE: {hi_score}', True, (255, 255, 255))
+    hi_score_surface.set_alpha(128)
+    hi_score_x_pos = (screen.get_width() - hi_score_surface.get_width()) // 2
+    hi_score_y_pos = 0
     screen.blit(hi_score_surface, (hi_score_x_pos, hi_score_y_pos))
 
     pygame.display.flip()
@@ -516,3 +564,4 @@ while running:
 
 pygame.mixer.music.stop()
 pygame.quit()
+sys.exit()

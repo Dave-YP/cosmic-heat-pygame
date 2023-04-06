@@ -1,18 +1,17 @@
-![alt text](images/logo.png "Capital_2050")
-![alt text](images/gameplay1.png "Геймлей")
-![alt text](images/gameplay4.png "Геймлей")
-![alt text](images/gameplay5.png "Геймлей")
-# Capital_2050
-## Запуск игры:
- - git clone https://github.com/Dave-YP/Capital_2050.git
- - cd Capiltal_2050
+![alt text](images/logo.png "Cosmic Heat")
+![alt text](images/gameplay19.png "Gameplay")
+![alt text](images/gameplay17.png "Gameplay")
+
+# Cosmic_Heat
+Just a communist shooter from a neighboring parallel world. It was written using Python and Pygame. The game is still being updated. To control the game, you can use either the keyboard or a joystick.
+## Game launch:
+ - git clone https://github.com/Dave-YP/Cosmic_Heat.git
+ - cd Cosmic_Heat
  - python -m venv env
  - source env/Scripts/activate
  - pip install -r requirements.txt
-
- - запускаем menu.py из терминала в папке Capital_2050
- ## Управление:
- - стрельба - SPACE
- - передвижение - стрелки
- - пауза - P
- - выход - Esc
+ ## Controls:
+ - shoot - SPACE
+ - move - arrows
+ - pause - P
+ - exit - Esc
