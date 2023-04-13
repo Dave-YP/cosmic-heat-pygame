@@ -3,20 +3,12 @@ import sys
 import pygame
 import random
 
-from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill
+from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill, Boss1
 from game_objects import Meteors, Meteors2, Bullet, DoubleRefill, ExtraScore, BlackHole, Enemy2
 from game_controls import move_player, move_player_with_joystick
 from constants import WIDTH, HEIGHT, FPS
 from game_functions import show_game_over, music_background
 from menu import show_menu, animate_screen
-
-
-def main():
-    pygame.mixer.music.stop()
-    pygame.mixer.music.load('game_sounds/game.mp3')
-    pygame.mixer.music.play(-1)
-    animate_screen()
-
 
 pygame.init()
 music_background()
@@ -25,10 +17,19 @@ surface = pygame.Surface((WIDTH, HEIGHT))
 pygame.display.set_caption("Cosmic Heat")
 clock = pygame.time.Clock()
 
+def main():
+    pygame.mixer.music.stop()
+    pygame.mixer.music.load('game_sounds/game.mp3')
+    pygame.mixer.music.play(-1)
+    animate_screen()
+
+
+
 explosions = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 enemy1_group = pygame.sprite.Group()
 enemy2_group = pygame.sprite.Group()
+boss1_group = pygame.sprite.Group()
 bullet_refill_group = pygame.sprite.Group()
 health_refill_group = pygame.sprite.Group()
 double_refill_group = pygame.sprite.Group()
@@ -37,6 +38,11 @@ meteor2_group = pygame.sprite.Group()
 extra_score_group = pygame.sprite.Group()
 black_hole_group = pygame.sprite.Group()
 enemy2_bullets = pygame.sprite.Group()
+
+boss1_bullets = pygame.sprite.Group()
+boss1_health = 200
+boss1_health_bar_rect = pygame.Rect(0, 0, 200, 5)
+boss1_spawned = False
 
 bg_y_shift = -HEIGHT
 background_img = pygame.image.load('images/bg/background.jpg').convert()
@@ -57,9 +63,12 @@ enemy2_img = [
     pygame.image.load('images/enemy/enemy2_1.png').convert_alpha(),
     pygame.image.load('images/enemy/enemy2_2.png').convert_alpha()
 ]
+boss1_img = pygame.image.load('images/boss/boss1.png').convert_alpha()
+
 health_refill_img = pygame.image.load('images/refill/health_refill.png').convert_alpha()
 bullet_refill_img = pygame.image.load('images/refill/bullet_refill.png').convert_alpha()
 double_refill_img = pygame.image.load('images/refill/double_refill.png').convert_alpha()
+
 meteor_imgs = [
     pygame.image.load('images/meteors/meteor_1.png').convert_alpha(),
     pygame.image.load('images/meteors/meteor_2.png').convert_alpha(),
@@ -211,7 +220,7 @@ while running:
         )
         enemy1_group.add(enemy_object)
 
-    if score >= 5000 and random.randint(0, 40) == 0 and len(enemy2_group) < 2:
+    if score >= 3000 and random.randint(0, 40) == 0 and len(enemy2_group) < 2:
         enemy_img = random.choice(enemy2_img)
         enemy2_object = Enemy2(
             random.randint(200, WIDTH - 100),
@@ -219,6 +228,16 @@ while running:
             enemy_img,
         )
         enemy2_group.add(enemy2_object)
+
+    if score >= 5000 and not boss1_spawned:
+        boss1_img = boss1_img
+        boss1_object = Boss1(
+            random.randint(200, WIDTH - 100),
+            random.randint(-HEIGHT, -100),
+            boss1_img,
+        )
+        boss1_group.add(boss1_object)
+        boss1_spawned = True
 
     if random.randint(0, 60) == 0:
         extra_score = ExtraScore(
@@ -247,7 +266,7 @@ while running:
         )
         meteor2_group.add(meteor2_object)
 
-    if score > 3000 and random.randint(0, 500) == 0:
+    if score > 300 and random.randint(0, 500) == 0:
         black_hole_img = random.choice(black_hole_imgs)
         black_hole_object = BlackHole(
             random.randint(100, WIDTH - 50),
@@ -258,6 +277,8 @@ while running:
 
     if player_life <= 0:
         show_game_over(score)
+        boss1_spawned = False
+        boss1_health = 200
         score = 0
         player_life = 100
         bullet_counter = 100
@@ -272,6 +293,7 @@ while running:
         meteor2_group.empty()
         enemy1_group.empty()
         enemy2_group.empty()
+        boss1_group.empty()
         explosions.empty()
 
     for black_hole_object in black_hole_group:
@@ -498,6 +520,50 @@ while running:
             if enemy2_bullet.rect.colliderect(player.rect):
                 player_life -= 10
                 enemy2_bullet.kill()
+    
+    for boss1_object in boss1_group:
+        boss1_object.update(boss1_bullets, player)
+        boss1_group.draw(screen)
+        boss1_bullets.update()
+        boss1_bullets.draw(screen)
+
+        if boss1_object.rect.colliderect(player.rect):
+            player_life -= 10
+            explosion = Explosion(boss1_object.rect.center, explosion_images)
+            explosions.add(explosion)
+
+        bullet_collisions = pygame.sprite.spritecollide(boss1_object, bullets, True)
+        for bullet_collision in bullet_collisions:
+            explosion = Explosion(boss1_object.rect.center, explosion_images)
+            explosions.add(explosion)
+            boss1_health -= 5
+            if boss1_health <= 0:
+                explosion = Explosion(boss1_object.rect.center, explosion_images)
+                explosions.add(explosion)
+                boss1_object.kill()
+                score += 500
+
+                if random.randint(0, 20) == 0:
+                    double_refill = DoubleRefill(
+                        boss1_object.rect.centerx,
+                        boss1_object.rect.centery,
+                        double_refill_img,
+                    )
+                    double_refill_group.add(double_refill)
+
+        for boss1_bullet in boss1_bullets:
+            if boss1_bullet.rect.colliderect(player.rect):
+                player_life -= 10
+                boss1_bullet.kill()
+
+        if boss1_health <= 0:
+            boss1_object.kill()
+
+    if boss1_group:
+        boss1_object = boss1_group.sprites()[0]
+        boss1_health_bar_rect.center = (boss1_object.rect.centerx, boss1_object.rect.top - 5)
+        pygame.draw.rect(screen, (255, 0, 0), boss1_health_bar_rect)
+        pygame.draw.rect(screen, (0, 255, 0), (boss1_health_bar_rect.left, boss1_health_bar_rect.top, boss1_health, boss1_health_bar_rect.height))
 
     player_image_copy = player.image.copy()
     screen.blit(player_image_copy, player.rect)
@@ -517,15 +583,23 @@ while running:
 
     player_life_surface = pygame.Surface((200, 25), pygame.SRCALPHA, 32)
     player_life_surface.set_alpha(216)
-    player_life_bar = pygame.Surface(((player_life / 100) * 200, 30), pygame.SRCALPHA, 32)
+
+    player_life_bar_width = int(player_life / 100 * 200)
+    player_life_bar_width = max(0, min(player_life_bar_width, 200))
+
+    player_life_bar = pygame.Surface((player_life_bar_width, 30), pygame.SRCALPHA, 32)
     player_life_bar.set_alpha(216)
+
     life_bar_image = pygame.image.load("images/life_bar.png").convert_alpha()
+
     if player_life > 50:
         player_life_bar.fill((152, 251, 152))
     else:
         player_life_bar.fill((0, 0, 0))
+
     player_life_surface.blit(life_bar_image, (0, 0))
     player_life_surface.blit(player_life_bar, (35, 0))
+
     life_x_pos = 10
     screen.blit(player_life_surface, (life_x_pos, 10))
 
@@ -542,7 +616,7 @@ while running:
     bullet_counter_surface.blit(bullet_counter_bar, (35, 0))
     bullet_x_pos = 10
     bullet_y_pos = player_life_surface.get_height() + 20
-    screen.blit(bullet_counter_surface, (bullet_x_pos, bullet_y_pos))
+    screen.blit(bullet_counter_surface, (bullet_x_pos, bullet_y_pos)) 
 
 
     score_surface = pygame.font.SysFont('Impact', 30).render(f'{score}', True, (238, 232, 170))
