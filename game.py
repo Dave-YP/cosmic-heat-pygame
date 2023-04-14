@@ -3,7 +3,7 @@ import sys
 import pygame
 import random
 
-from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill, Boss1
+from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill, Boss1, Boss2, Boss3, Explosion2
 from game_objects import Meteors, Meteors2, Bullet, DoubleRefill, ExtraScore, BlackHole, Enemy2
 from game_controls import move_player, move_player_with_joystick
 from constants import WIDTH, HEIGHT, FPS
@@ -24,12 +24,14 @@ def main():
     animate_screen()
 
 
-
 explosions = pygame.sprite.Group()
+explosions2 = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 enemy1_group = pygame.sprite.Group()
 enemy2_group = pygame.sprite.Group()
 boss1_group = pygame.sprite.Group()
+boss2_group = pygame.sprite.Group()
+boss3_group = pygame.sprite.Group()
 bullet_refill_group = pygame.sprite.Group()
 health_refill_group = pygame.sprite.Group()
 double_refill_group = pygame.sprite.Group()
@@ -40,9 +42,20 @@ black_hole_group = pygame.sprite.Group()
 enemy2_bullets = pygame.sprite.Group()
 
 boss1_bullets = pygame.sprite.Group()
-boss1_health = 200
-boss1_health_bar_rect = pygame.Rect(0, 0, 200, 5)
+boss2_bullets = pygame.sprite.Group()
+boss3_bullets = pygame.sprite.Group()
+
+boss1_health = 150
+boss1_health_bar_rect = pygame.Rect(0, 0, 150, 5)
 boss1_spawned = False
+
+boss2_health = 150
+boss2_health_bar_rect = pygame.Rect(0, 0, 150, 5)
+boss2_spawned = False
+
+boss3_health = 200
+boss3_health_bar_rect = pygame.Rect(0, 0, 200, 5)
+boss3_spawned = False
 
 bg_y_shift = -HEIGHT
 background_img = pygame.image.load('images/bg/background.jpg').convert()
@@ -53,7 +66,9 @@ background_top = background_img.copy()
 current_image = background_img
 new_background_activated = False
 
-explosion_images = [pygame.image.load(f"images/explosion/explosion{i}.png") for i in range(18)]
+explosion_images = [pygame.image.load(f"images/explosion/explosion{i}.png") for i in range(8)]
+explosion2_images = [pygame.image.load(f"images/explosion3/explosion{i}.png") for i in range(18)]
+
 enemy1_img = [
     pygame.image.load('images/enemy/enemy1_1.png').convert_alpha(),
     pygame.image.load('images/enemy/enemy1_2.png').convert_alpha(),
@@ -64,6 +79,8 @@ enemy2_img = [
     pygame.image.load('images/enemy/enemy2_2.png').convert_alpha()
 ]
 boss1_img = pygame.image.load('images/boss/boss1.png').convert_alpha()
+boss2_img = pygame.image.load('images/boss/boss2_1.png').convert_alpha()
+boss3_img = pygame.image.load('images/boss/boss3.png').convert_alpha()
 
 health_refill_img = pygame.image.load('images/refill/health_refill.png').convert_alpha()
 bullet_refill_img = pygame.image.load('images/refill/bullet_refill.png').convert_alpha()
@@ -160,7 +177,7 @@ while running:
             move_player_with_joystick(joystick, player)
 
     if paused:
-        font = pygame.font.SysFont('Impact', 40)
+        font = pygame.font.SysFont('Comic Sans MS', 40)
         text = font.render("PAUSE", True, (255, 255, 255))
         text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
         screen.blit(text, text_rect)
@@ -230,6 +247,7 @@ while running:
         enemy2_group.add(enemy2_object)
 
     if score >= 5000 and not boss1_spawned:
+        pygame.mixer.Sound('game_sounds/warning.mp3').play()
         boss1_img = boss1_img
         boss1_object = Boss1(
             random.randint(200, WIDTH - 100),
@@ -238,6 +256,28 @@ while running:
         )
         boss1_group.add(boss1_object)
         boss1_spawned = True
+    
+    if score >= 10000 and not boss2_spawned:
+        pygame.mixer.Sound('game_sounds/warning.mp3').play()
+        boss2_img = boss2_img
+        boss2_object = Boss2(
+            random.randint(200, WIDTH - 100),
+            random.randint(-HEIGHT, -100),
+            boss2_img,
+        )
+        boss2_group.add(boss2_object)
+        boss2_spawned = True
+    
+    if score >= 15000 and not boss3_spawned:
+        pygame.mixer.Sound('game_sounds/warning.mp3').play()
+        boss3_img = boss3_img
+        boss3_object = Boss3(
+            random.randint(200, WIDTH - 100),
+            random.randint(-HEIGHT, -100),
+            boss3_img,
+        )
+        boss3_group.add(boss3_object)
+        boss3_spawned = True
 
     if random.randint(0, 60) == 0:
         extra_score = ExtraScore(
@@ -278,7 +318,11 @@ while running:
     if player_life <= 0:
         show_game_over(score)
         boss1_spawned = False
-        boss1_health = 200
+        boss1_health = 150
+        boss2_spawned = False
+        boss2_health = 150
+        boss3_spawned = False
+        boss3_health = 200
         score = 0
         player_life = 200
         bullet_counter = 200
@@ -294,7 +338,10 @@ while running:
         enemy1_group.empty()
         enemy2_group.empty()
         boss1_group.empty()
+        boss2_group.empty()
+        boss3_group.empty()
         explosions.empty()
+        explosions2.empty()
 
     for black_hole_object in black_hole_group:
         black_hole_object.update()
@@ -496,15 +543,15 @@ while running:
 
         if enemy2_object.rect.colliderect(player.rect):
             player_life -= 40
-            explosion = Explosion(enemy2_object.rect.center, explosion_images)
-            explosions.add(explosion)
+            explosion2 = Explosion2(enemy2_object.rect.center, explosion2_images)
+            explosions2.add(explosion2)
             enemy2_object.kill()
             score += 20
 
         bullet_collisions = pygame.sprite.spritecollide(enemy2_object, bullets, True)
         for bullet_collision in bullet_collisions:
-            explosion = Explosion(enemy2_object.rect.center, explosion_images)
-            explosions.add(explosion)
+            explosion2 = Explosion2(enemy2_object.rect.center, explosion2_images)
+            explosions2.add(explosion2)
             enemy2_object.kill()
             score += 50
 
@@ -518,7 +565,9 @@ while running:
 
         for enemy2_bullet in enemy2_bullets:
             if enemy2_bullet.rect.colliderect(player.rect):
-                player_life -= 20
+                player_life -= 10
+                explosion = Explosion(player.rect.center, explosion_images)
+                explosions.add(explosion)
                 enemy2_bullet.kill()
     
     for boss1_object in boss1_group:
@@ -528,17 +577,17 @@ while running:
         boss1_bullets.draw(screen)
 
         if boss1_object.rect.colliderect(player.rect):
-            player_life -= 10
-            explosion = Explosion(boss1_object.rect.center, explosion_images)
-            explosions.add(explosion)
+            player_life -= 20
+            explosion = Explosion2(boss1_object.rect.center, explosion2_images)
+            explosions2.add(explosion)
 
         bullet_collisions = pygame.sprite.spritecollide(boss1_object, bullets, True)
         for bullet_collision in bullet_collisions:
-            explosion = Explosion(boss1_object.rect.center, explosion_images)
-            explosions.add(explosion)
-            boss1_health -= 5
+            explosion2 = Explosion(boss1_object.rect.center, explosion2_images)
+            explosions2.add(explosion2)
+            boss1_health -= 6
             if boss1_health <= 0:
-                explosion = Explosion(boss1_object.rect.center, explosion_images)
+                explosion = Explosion2(boss1_object.rect.center, explosion2_images)
                 explosions.add(explosion)
                 boss1_object.kill()
                 score += 500
@@ -554,9 +603,13 @@ while running:
         for boss1_bullet in boss1_bullets:
             if boss1_bullet.rect.colliderect(player.rect):
                 player_life -= 20
+                explosion = Explosion(player.rect.center, explosion_images)
+                explosions.add(explosion)
                 boss1_bullet.kill()
 
         if boss1_health <= 0:
+            explosion = Explosion2(boss1_object.rect.center, explosion2_images)
+            explosions2.add(explosion)
             boss1_object.kill()
 
     if boss1_group:
@@ -565,12 +618,112 @@ while running:
         pygame.draw.rect(screen, (255, 0, 0), boss1_health_bar_rect)
         pygame.draw.rect(screen, (0, 255, 0), (boss1_health_bar_rect.left, boss1_health_bar_rect.top, boss1_health, boss1_health_bar_rect.height))
 
+    for boss2_object in boss2_group:
+        boss2_object.update(boss2_bullets, player)
+        boss2_group.draw(screen)
+        boss2_bullets.update()
+        boss2_bullets.draw(screen)
+
+        if boss2_object.rect.colliderect(player.rect):
+            player_life -= 20
+            explosion2 = Explosion2(boss2_object.rect.center, explosion2_images)
+            explosions2.add(explosion2)
+
+        bullet_collisions = pygame.sprite.spritecollide(boss2_object, bullets, True)
+        for bullet_collision in bullet_collisions:
+            explosion2 = Explosion2(boss2_object.rect.center, explosion2_images)
+            explosions2.add(explosion2)
+            boss2_health -= 8
+            if boss2_health <= 0:
+                explosion2 = Explosion2(boss2_object.rect.center, explosion2_images)
+                explosions2.add(explosion2)
+                boss2_object.kill()
+                score += 800
+
+                if random.randint(0, 20) == 0:
+                    double_refill = DoubleRefill(
+                        boss2_object.rect.centerx,
+                        boss2_object.rect.centery,
+                        double_refill_img,
+                    )
+                    double_refill_group.add(double_refill)
+
+        for boss2_bullet in boss2_bullets:
+            if boss2_bullet.rect.colliderect(player.rect):
+                player_life -= 20
+                explosion = Explosion(player.rect.center, explosion_images)
+                explosions.add(explosion)
+                boss2_bullet.kill()
+
+        if boss2_health <= 0:
+            explosion = Explosion2(boss2_object.rect.center, explosion2_images)
+            explosions2.add(explosion)
+            boss2_object.kill()
+
+    if boss2_group:
+        boss2_object = boss2_group.sprites()[0]
+        boss2_health_bar_rect.center = (boss2_object.rect.centerx, boss2_object.rect.top - 5)
+        pygame.draw.rect(screen, (255, 0, 0), boss2_health_bar_rect)
+        pygame.draw.rect(screen, (0, 255, 0), (boss2_health_bar_rect.left, boss2_health_bar_rect.top, boss2_health, boss2_health_bar_rect.height))
+
+    for boss3_object in boss3_group:
+        boss3_object.update(boss3_bullets, player)
+        boss3_group.draw(screen)
+        boss3_bullets.update()
+        boss3_bullets.draw(screen)
+
+        if boss3_object.rect.colliderect(player.rect):
+            player_life -= 1
+            explosion2 = Explosion2(boss3_object.rect.center, explosion2_images)
+            explosions2.add(explosion2)
+
+        bullet_collisions = pygame.sprite.spritecollide(boss3_object, bullets, True)
+        for bullet_collision in bullet_collisions:
+            explosion2 = Explosion2(boss3_object.rect.center, explosion2_images)
+            explosions2.add(explosion2)
+            boss3_health -= 6
+            if boss3_health <= 0:
+                explosion2 = Explosion2(boss3_object.rect.center, explosion2_images)
+                explosions2.add(explosion2)
+                boss3_object.kill()
+                score += 1000
+
+                if random.randint(0, 20) == 0:
+                    double_refill = DoubleRefill(
+                        boss3_object.rect.centerx,
+                        boss3_object.rect.centery,
+                        double_refill_img,
+                    )
+                    double_refill_group.add(double_refill)
+
+        for boss3_bullet in boss3_bullets:
+            if boss3_bullet.rect.colliderect(player.rect):
+                player_life -= 20
+                explosion = Explosion(player.rect.center, explosion_images)
+                explosions.add(explosion)
+                boss3_bullet.kill()
+
+        if boss3_health <= 0:
+            explosion = Explosion2(boss3_object.rect.center, explosion2_images)
+            explosions2.add(explosion)
+            boss3_object.kill()
+
+    if boss3_group:
+        boss3_object = boss3_group.sprites()[0]
+        boss3_health_bar_rect.center = (boss3_object.rect.centerx, boss3_object.rect.top - 5)
+        pygame.draw.rect(screen, (255, 0, 0), boss3_health_bar_rect)
+        pygame.draw.rect(screen, (0, 255, 0), (boss3_health_bar_rect.left, boss3_health_bar_rect.top, boss3_health, boss3_health_bar_rect.height))
+
     player_image_copy = player.image.copy()
     screen.blit(player_image_copy, player.rect)
 
     for explosion in explosions:
         explosion.update()
         screen.blit(explosion.image, explosion.rect)
+    
+    for explosion2 in explosions2:
+        explosion2.update()
+        screen.blit(explosion2.image, explosion2.rect)
 
     for bullet in bullets:
         bullet.update()
@@ -619,14 +772,14 @@ while running:
     screen.blit(bullet_counter_surface, (bullet_x_pos, bullet_y_pos)) 
 
 
-    score_surface = pygame.font.SysFont('Impact', 30).render(f'{score}', True, (238, 232, 170))
+    score_surface = pygame.font.SysFont('Comic Sans MS', 30).render(f'{score}', True, (238, 232, 170))
     score_image_rect = score_surface.get_rect()
     score_image_rect.x, score_image_rect.y = WIDTH - score_image_rect.width - extra_score_img.get_width() - 10, 10
 
     screen.blit(extra_score_img, (score_image_rect.right + 5, score_image_rect.centery - extra_score_img.get_height()//2))
     screen.blit(score_surface, score_image_rect)
 
-    hi_score_surface = pygame.font.SysFont('Impact', 20).render(f'HI-SCORE: {hi_score}', True, (255, 255, 255))
+    hi_score_surface = pygame.font.SysFont('Comic Sans MS', 20).render(f'HI-SCORE: {hi_score}', True, (255, 255, 255))
     hi_score_surface.set_alpha(128)
     hi_score_x_pos = (screen.get_width() - hi_score_surface.get_width()) // 2
     hi_score_y_pos = 0

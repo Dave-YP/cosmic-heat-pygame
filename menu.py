@@ -112,7 +112,7 @@ while show_menu:
 
     screen.blit(logo_img, (logo_x, logo_y))
 
-    font = pygame.font.Font(None, 42)
+    font = pygame.font.SysFont('Comic Sans MS', 40)
     text = font.render("Play", True, WHITE)
     pygame.draw.rect(screen, BLACK, play_button_rect, border_radius=10)
     if selected_button == 0:
