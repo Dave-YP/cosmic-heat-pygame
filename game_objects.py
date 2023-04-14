@@ -300,7 +300,7 @@ class Enemy2(pygame.sprite.Sprite):
         self.shots_fired = 0
 
     def update(self, enemy_group, enemy_bullets_group, player):
-        if self.shots_fired < 5:
+        if self.shots_fired < 10:
             dx, dy = self.direction
             self.rect.x += dx * self.speed
             self.rect.y = max(self.rect.y, 5)
@@ -498,16 +498,18 @@ class Boss1(pygame.sprite.Sprite):
         super().__init__()
         self.image = image
         self.rect = self.image.get_rect(center=(x, y))
-        self.speed = 5
+        self.speed = 8
         self.direction = random.choice([(-1, 0), (1, 0)]) 
         self.shoot_timer = 0
         self.shots_fired = 0
 
     def update(self, enemy_bullets_group, player):
+        self.rect.x += math.sin(pygame.time.get_ticks() * 0.01) * 3
+        self.rect.y += math.sin(pygame.time.get_ticks() * 0.01) * 3
         if self.shots_fired < 20:
             dx, dy = self.direction
             self.rect.x += dx * self.speed
-            self.rect.y = max(self.rect.y, 5)
+            self.rect.y = max(self.rect.y, 70)
 
             if self.rect.left < 5:
                 self.rect.left = 5

@@ -92,8 +92,8 @@ initial_player_pos = (WIDTH // 2, HEIGHT - 100)
 score = 0
 hi_score = 0
 player = Player()
-player_life = 100
-bullet_counter = 100
+player_life = 200
+bullet_counter = 200
 
 paused = False
 running = True
@@ -266,7 +266,7 @@ while running:
         )
         meteor2_group.add(meteor2_object)
 
-    if score > 300 and random.randint(0, 500) == 0:
+    if score > 1000 and random.randint(0, 500) == 0:
         black_hole_img = random.choice(black_hole_imgs)
         black_hole_object = BlackHole(
             random.randint(100, WIDTH - 50),
@@ -280,8 +280,8 @@ while running:
         boss1_spawned = False
         boss1_health = 200
         score = 0
-        player_life = 100
-        bullet_counter = 100
+        player_life = 200
+        bullet_counter = 200
         player.rect.topleft = initial_player_pos
         bullets.empty()
         bullet_refill_group.empty()
@@ -319,10 +319,10 @@ while running:
         bullet_refill.draw(screen)
 
         if player.rect.colliderect(bullet_refill.rect):
-            if bullet_counter < 100:
+            if bullet_counter < 200:
                 bullet_counter += 50
-                if bullet_counter > 100:
-                    bullet_counter = 100
+                if bullet_counter > 200:
+                    bullet_counter = 200
                 bullet_refill.kill()
                 bullet_refill.sound_effect.play()
             else:
@@ -334,10 +334,10 @@ while running:
         health_refill.draw(screen)
 
         if player.rect.colliderect(health_refill.rect):
-            if player_life < 100:
+            if player_life < 200:
                 player_life += 50
-                if player_life > 100:
-                    player_life = 100
+                if player_life > 200:
+                    player_life = 200
                 health_refill.kill()
                 health_refill.sound_effect.play()
             else:
@@ -369,14 +369,14 @@ while running:
         double_refill.draw(screen)
 
         if player.rect.colliderect(double_refill.rect):
-            if player_life < 100:
+            if player_life < 200:
                 player_life += 50
-                if player_life > 100:
-                    player_life = 100
-            if bullet_counter < 100:
+                if player_life > 200:
+                    player_life = 200
+            if bullet_counter < 200:
                 bullet_counter += 50
-                if bullet_counter > 100:
-                    bullet_counter = 100
+                if bullet_counter > 200:
+                    bullet_counter = 200
                 double_refill.kill()
                 double_refill.sound_effect.play()
             else:
@@ -401,7 +401,7 @@ while running:
             meteor_object.kill()
             score += 60
 
-            if random.randint(0, 20) == 0:
+            if random.randint(0, 10) == 0:
                 double_refill = DoubleRefill(
                     meteor_object.rect.centerx,
                     meteor_object.rect.centery,
@@ -495,7 +495,7 @@ while running:
         enemy2_bullets.draw(screen)
 
         if enemy2_object.rect.colliderect(player.rect):
-            player_life -= 10
+            player_life -= 40
             explosion = Explosion(enemy2_object.rect.center, explosion_images)
             explosions.add(explosion)
             enemy2_object.kill()
@@ -518,7 +518,7 @@ while running:
 
         for enemy2_bullet in enemy2_bullets:
             if enemy2_bullet.rect.colliderect(player.rect):
-                player_life -= 10
+                player_life -= 20
                 enemy2_bullet.kill()
     
     for boss1_object in boss1_group:
@@ -553,7 +553,7 @@ while running:
 
         for boss1_bullet in boss1_bullets:
             if boss1_bullet.rect.colliderect(player.rect):
-                player_life -= 10
+                player_life -= 20
                 boss1_bullet.kill()
 
         if boss1_health <= 0:
@@ -584,7 +584,7 @@ while running:
     player_life_surface = pygame.Surface((200, 25), pygame.SRCALPHA, 32)
     player_life_surface.set_alpha(216)
 
-    player_life_bar_width = int(player_life / 100 * 200)
+    player_life_bar_width = int(player_life / 200 * 200)
     player_life_bar_width = max(0, min(player_life_bar_width, 200))
 
     player_life_bar = pygame.Surface((player_life_bar_width, 30), pygame.SRCALPHA, 32)
@@ -605,7 +605,7 @@ while running:
 
     bullet_counter_surface = pygame.Surface((200, 25), pygame.SRCALPHA, 32)
     bullet_counter_surface.set_alpha(216)
-    bullet_counter_bar = pygame.Surface(((bullet_counter / 100) * 200, 30), pygame.SRCALPHA, 32)
+    bullet_counter_bar = pygame.Surface(((bullet_counter / 200) * 200, 30), pygame.SRCALPHA, 32)
     bullet_counter_bar.set_alpha(216)
     bullet_bar_image = pygame.image.load("images/bullet_bar.png").convert_alpha()
     if bullet_counter > 50:
