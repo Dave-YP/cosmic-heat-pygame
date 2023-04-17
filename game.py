@@ -124,57 +124,63 @@ if show_menu:
     import menu
     menu.main()
 
-while running:
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+def get_events():
+    global running,paused,bullet_counter
+
+    for event in pygame.event.get() :
+        if event.type == pygame.QUIT :
             running = False
 
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and not paused:
-                if bullet_counter > 0:
+        elif event.type == pygame.KEYDOWN :
+            if event.key == pygame.K_SPACE and not paused :
+                if bullet_counter > 0 :
                     bullet = Bullet(player.rect.centerx, player.rect.top)
                     bullets.add(bullet)
                     bullet_counter -= 1
-            elif event.key == pygame.K_ESCAPE:
+            elif event.key == pygame.K_ESCAPE :
                 sys.exit(0)
-            elif event.key == pygame.K_p or event.key == pygame.K_PAUSE:
+            elif event.key == pygame.K_p or event.key == pygame.K_PAUSE :
                 paused = not paused
-            elif not paused:
-                if event.key == pygame.K_LEFT:
+            elif not paused :
+                if event.key == pygame.K_LEFT :
                     player.move_left()
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_RIGHT :
                     player.move_right()
-                elif event.key == pygame.K_UP:
+                elif event.key == pygame.K_UP :
                     player.move_up()
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_DOWN :
                     player.move_down()
 
-        elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_SPACE and player.original_image is not None:
+        elif event.type == pygame.KEYUP :
+            if event.key == pygame.K_SPACE and player.original_image is not None :
                 player.image = player.original_image.copy()
-            elif not paused:
-                if event.key == pygame.K_LEFT:
+            elif not paused :
+                if event.key == pygame.K_LEFT :
                     player.stop_left()
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_RIGHT :
                     player.stop_right()
-                elif event.key == pygame.K_UP:
+                elif event.key == pygame.K_UP :
                     player.stop_up()
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_DOWN :
                     player.stop_down()
 
-        elif event.type == pygame.JOYBUTTONDOWN:
-            if event.button == 0 and not paused:
-                if bullet_counter > 0:
+        elif event.type == pygame.JOYBUTTONDOWN :
+            if event.button == 0 and not paused :
+                if bullet_counter > 0 :
                     bullet = Bullet(player.rect.centerx, player.rect.top)
                     bullets.add(bullet)
                     bullet_counter -= 1
-            elif event.button == 7:
+            elif event.button == 7 :
                 paused = not paused
 
-    if joystick:
-        if not paused:
+    if joystick :
+        if not paused :
             move_player_with_joystick(joystick, player)
+
+while running:
+
+    get_events()
 
     if paused:
         font = pygame.font.SysFont('Comic Sans MS', 40)
@@ -788,7 +794,3 @@ while running:
     pygame.display.flip()
 
     clock.tick(FPS)
-
-pygame.mixer.music.stop()
-pygame.quit()
-sys.exit()
