@@ -178,8 +178,7 @@ def get_events():
             move_player_with_joystick(joystick, player)
 
 
-def check_events() -> bool: # continue the main loop if true
-
+def manage_pause_events() -> bool : # return paused value
     if paused:
         font = pygame.font.SysFont('Comic Sans MS', 40)
         text = font.render("PAUSE", True, (255, 255, 255))
@@ -189,14 +188,91 @@ def check_events() -> bool: # continue the main loop if true
         return True
     else:
         move_player(keys, player)
-
         screen.blit(current_image, (0, bg_y_shift))
         background_top_rect = background_top.get_rect(topleft=(0, bg_y_shift))
         background_top_rect.top = bg_y_shift + HEIGHT
         screen.blit(background_top, background_top_rect)
+        return False
 
-    return paused
+def check_events() -> bool: # continue the main loop if true
+    pause_result = manage_pause_events()
 
+    return pause_result
+
+def render():
+    global bullet_counter
+
+    player_image_copy = player.image.copy()
+    screen.blit(player_image_copy, player.rect)
+
+    for explosion in explosions :
+        explosion.update()
+        screen.blit(explosion.image, explosion.rect)
+
+    for explosion2 in explosions2 :
+        explosion2.update()
+        screen.blit(explosion2.image, explosion2.rect)
+
+    for bullet in bullets :
+        bullet.update()
+        screen.blit(bullet.image, bullet.rect)
+
+        if bullet.rect.bottom < 0 :
+            bullet.kill()
+            bullet_counter -= 1
+
+    player_life_surface = pygame.Surface((200, 25), pygame.SRCALPHA, 32)
+    player_life_surface.set_alpha(216)
+
+    player_life_bar_width = int(player_life / 200 * 200)
+    player_life_bar_width = max(0, min(player_life_bar_width, 200))
+
+    player_life_bar = pygame.Surface((player_life_bar_width, 30), pygame.SRCALPHA, 32)
+    player_life_bar.set_alpha(216)
+
+    life_bar_image = pygame.image.load("images/life_bar.png").convert_alpha()
+
+    if player_life > 50 :
+        player_life_bar.fill((152, 251, 152))
+    else :
+        player_life_bar.fill((0, 0, 0))
+
+    player_life_surface.blit(life_bar_image, (0, 0))
+    player_life_surface.blit(player_life_bar, (35, 0))
+
+    life_x_pos = 10
+    screen.blit(player_life_surface, (life_x_pos, 10))
+
+    bullet_counter_surface = pygame.Surface((200, 25), pygame.SRCALPHA, 32)
+    bullet_counter_surface.set_alpha(216)
+    bullet_counter_bar = pygame.Surface(((bullet_counter / 200) * 200, 30), pygame.SRCALPHA, 32)
+    bullet_counter_bar.set_alpha(216)
+    bullet_bar_image = pygame.image.load("images/bullet_bar.png").convert_alpha()
+    if bullet_counter > 50 :
+        bullet_counter_bar.fill((255, 23, 23))
+    else :
+        bullet_counter_bar.fill((0, 0, 0))
+    bullet_counter_surface.blit(bullet_bar_image, (0, 0))
+    bullet_counter_surface.blit(bullet_counter_bar, (35, 0))
+    bullet_x_pos = 10
+    bullet_y_pos = player_life_surface.get_height() + 20
+    screen.blit(bullet_counter_surface, (bullet_x_pos, bullet_y_pos))
+
+    score_surface = pygame.font.SysFont('Comic Sans MS', 30).render(f'{score}', True,
+        (238, 232, 170))
+    score_image_rect = score_surface.get_rect()
+    score_image_rect.x, score_image_rect.y = WIDTH - score_image_rect.width - extra_score_img.get_width() - 10, 10
+
+    screen.blit(extra_score_img,
+        (score_image_rect.right + 5, score_image_rect.centery - extra_score_img.get_height() // 2))
+    screen.blit(score_surface, score_image_rect)
+
+    hi_score_surface = pygame.font.SysFont('Comic Sans MS', 20).render(f'HI-SCORE: {hi_score}',
+        True, (255, 255, 255))
+    hi_score_surface.set_alpha(128)
+    hi_score_x_pos = (screen.get_width() - hi_score_surface.get_width()) // 2
+    hi_score_y_pos = 0
+    screen.blit(hi_score_surface, (hi_score_x_pos, hi_score_y_pos))
 
 
 
@@ -206,10 +282,6 @@ while running:
 
     if check_events():
         continue
-
-
-
-
 
 
     bg_y_shift += 1
@@ -732,76 +804,7 @@ while running:
         pygame.draw.rect(screen, (255, 0, 0), boss3_health_bar_rect)
         pygame.draw.rect(screen, (0, 255, 0), (boss3_health_bar_rect.left, boss3_health_bar_rect.top, boss3_health, boss3_health_bar_rect.height))
 
-    player_image_copy = player.image.copy()
-    screen.blit(player_image_copy, player.rect)
-
-    for explosion in explosions:
-        explosion.update()
-        screen.blit(explosion.image, explosion.rect)
-    
-    for explosion2 in explosions2:
-        explosion2.update()
-        screen.blit(explosion2.image, explosion2.rect)
-
-    for bullet in bullets:
-        bullet.update()
-        screen.blit(bullet.image, bullet.rect)
-
-        if bullet.rect.bottom < 0:
-            bullet.kill()
-            bullet_counter -= 1
-
-
-    player_life_surface = pygame.Surface((200, 25), pygame.SRCALPHA, 32)
-    player_life_surface.set_alpha(216)
-
-    player_life_bar_width = int(player_life / 200 * 200)
-    player_life_bar_width = max(0, min(player_life_bar_width, 200))
-
-    player_life_bar = pygame.Surface((player_life_bar_width, 30), pygame.SRCALPHA, 32)
-    player_life_bar.set_alpha(216)
-
-    life_bar_image = pygame.image.load("images/life_bar.png").convert_alpha()
-
-    if player_life > 50:
-        player_life_bar.fill((152, 251, 152))
-    else:
-        player_life_bar.fill((0, 0, 0))
-
-    player_life_surface.blit(life_bar_image, (0, 0))
-    player_life_surface.blit(player_life_bar, (35, 0))
-
-    life_x_pos = 10
-    screen.blit(player_life_surface, (life_x_pos, 10))
-
-    bullet_counter_surface = pygame.Surface((200, 25), pygame.SRCALPHA, 32)
-    bullet_counter_surface.set_alpha(216)
-    bullet_counter_bar = pygame.Surface(((bullet_counter / 200) * 200, 30), pygame.SRCALPHA, 32)
-    bullet_counter_bar.set_alpha(216)
-    bullet_bar_image = pygame.image.load("images/bullet_bar.png").convert_alpha()
-    if bullet_counter > 50:
-        bullet_counter_bar.fill((255, 23, 23))
-    else:
-        bullet_counter_bar.fill((0, 0, 0))
-    bullet_counter_surface.blit(bullet_bar_image, (0, 0))
-    bullet_counter_surface.blit(bullet_counter_bar, (35, 0))
-    bullet_x_pos = 10
-    bullet_y_pos = player_life_surface.get_height() + 20
-    screen.blit(bullet_counter_surface, (bullet_x_pos, bullet_y_pos)) 
-
-
-    score_surface = pygame.font.SysFont('Comic Sans MS', 30).render(f'{score}', True, (238, 232, 170))
-    score_image_rect = score_surface.get_rect()
-    score_image_rect.x, score_image_rect.y = WIDTH - score_image_rect.width - extra_score_img.get_width() - 10, 10
-
-    screen.blit(extra_score_img, (score_image_rect.right + 5, score_image_rect.centery - extra_score_img.get_height()//2))
-    screen.blit(score_surface, score_image_rect)
-
-    hi_score_surface = pygame.font.SysFont('Comic Sans MS', 20).render(f'HI-SCORE: {hi_score}', True, (255, 255, 255))
-    hi_score_surface.set_alpha(128)
-    hi_score_x_pos = (screen.get_width() - hi_score_surface.get_width()) // 2
-    hi_score_y_pos = 0
-    screen.blit(hi_score_surface, (hi_score_x_pos, hi_score_y_pos))
+    render()
 
     pygame.display.flip()
 
