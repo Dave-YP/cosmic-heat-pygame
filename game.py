@@ -114,8 +114,8 @@ bullet_counter = 200
 
 paused = False
 running = True
-
 joystick = None
+keys = []
 if pygame.joystick.get_count() > 0:
     joystick = pygame.joystick.Joystick(0)
     joystick.init()
@@ -124,10 +124,9 @@ if show_menu:
     import menu
     menu.main()
 
-
 def get_events():
-    global running,paused,bullet_counter
-
+    global running,paused,bullet_counter,keys
+    keys = pygame.key.get_pressed()
     for event in pygame.event.get() :
         if event.type == pygame.QUIT :
             running = False
@@ -178,9 +177,8 @@ def get_events():
         if not paused :
             move_player_with_joystick(joystick, player)
 
-while running:
 
-    get_events()
+def check_events() -> bool: # continue the main loop if true
 
     if paused:
         font = pygame.font.SysFont('Comic Sans MS', 40)
@@ -188,17 +186,31 @@ while running:
         text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
         screen.blit(text, text_rect)
         pygame.display.flip()
-        continue
-
-    keys = pygame.key.get_pressed()
-
-    if not paused:
+        return True
+    else:
         move_player(keys, player)
 
         screen.blit(current_image, (0, bg_y_shift))
         background_top_rect = background_top.get_rect(topleft=(0, bg_y_shift))
         background_top_rect.top = bg_y_shift + HEIGHT
         screen.blit(background_top, background_top_rect)
+
+    return paused
+
+
+
+
+while running:
+
+    get_events()
+
+    if check_events():
+        continue
+
+
+
+
+
 
     bg_y_shift += 1
     if bg_y_shift >= 0:
