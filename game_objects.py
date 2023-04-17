@@ -20,6 +20,8 @@ class Explosion(pygame.sprite.Sprite):
             pygame.mixer.Sound('game_sounds/explosions/explosion2.wav'),
             pygame.mixer.Sound('game_sounds/explosions/explosion3.wav')
         ]
+        for sound in self.explosion_sounds:
+            sound.set_volume(0.3)
         self.explosion_sound = random.choice(self.explosion_sounds)
         self.sound_played = False
 
@@ -39,6 +41,7 @@ class Explosion(pygame.sprite.Sprite):
                     self.explosion_sound.play()
                     self.sound_played = True
 
+
 class Explosion2(pygame.sprite.Sprite):
 
     def __init__(self, center, explosion2_images):
@@ -53,6 +56,8 @@ class Explosion2(pygame.sprite.Sprite):
         self.explosion2_sounds = [
             pygame.mixer.Sound('game_sounds/explosions/explosion3.wav')
         ]
+        for sound in self.explosion2_sounds:
+            sound.set_volume(0.3)
         self.explosion2_sound = random.choice(self.explosion2_sounds)
         self.sound_played = False
 
@@ -72,6 +77,7 @@ class Explosion2(pygame.sprite.Sprite):
                     self.explosion2_sound.play()
                     self.sound_played = True
 
+
 class Bullet(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
@@ -82,6 +88,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.bottom = y - 10
         self.speed = 10
         self.shoot_sound = pygame.mixer.Sound('game_sounds/shooting/shoot.mp3')
+        self.shoot_sound.set_volume(0.4)
         self.shoot_sound.play()
 
     def update(self):
@@ -103,6 +110,7 @@ class BulletRefill(pygame.sprite.Sprite):
         self.direction_x = random.choice([-2, 2])
         self.direction_y = random.choice([-2, 2])
         self.sound_effect = pygame.mixer.Sound("game_sounds/refill/bullet_refill.wav")
+        self.sound_effect.set_volume(0.4)
 
     def update(self):
         self.rect.y += self.speed * self.direction_y
@@ -131,6 +139,7 @@ class HealthRefill(pygame.sprite.Sprite):
         self.direction_x = random.choice([-2, 2])
         self.direction_y = random.choice([-2, 2])
         self.sound_effect = pygame.mixer.Sound("game_sounds/refill/health_refill.wav")
+        self.sound_effect.set_volume(0.4)
 
     def update(self):
         self.rect.y += self.speed * self.direction_y
@@ -159,6 +168,7 @@ class DoubleRefill(pygame.sprite.Sprite):
         self.direction_x = random.choice([-2, 2])
         self.direction_y = random.choice([-2, 2])
         self.sound_effect = pygame.mixer.Sound("game_sounds/refill/double_refill.mp3")
+        self.sound_effect.set_volume(0.4)
 
     def update(self):
         self.rect.y += self.speed * self.direction_y
@@ -191,6 +201,7 @@ class ExtraScore(pygame.sprite.Sprite):
         self.direction_x = 0
         self.direction_y = 1
         self.sound_effect = pygame.mixer.Sound("game_sounds/refill/extra_score.mp3")
+        self.sound_effect.set_volume(0.4)
 
     def update(self):
         self.rect.y += self.speed * self.direction_y
@@ -232,6 +243,30 @@ class Player:
         if self.rect.bottom < HEIGHT:
             self.rect.y += self.speed
             self.direction = 'down'
+
+    def move_up_left(self):
+        if self.rect.top > 0 and self.rect.left > 0:
+            self.rect.x -= self.speed
+            self.rect.y -= self.speed
+            self.direction = 'up_left'
+
+    def move_up_right(self):
+        if self.rect.top > 0 and self.rect.right < WIDTH:
+            self.rect.x += self.speed
+            self.rect.y -= self.speed
+            self.direction = 'up_right'
+
+    def move_down_left(self):
+        if self.rect.bottom < HEIGHT and self.rect.left > 0:
+            self.rect.x -= self.speed
+            self.rect.y += self.speed
+            self.direction = 'down_left'
+
+    def move_down_right(self):
+        if self.rect.bottom < HEIGHT and self.rect.right < WIDTH:
+            self.rect.x += self.speed
+            self.rect.y += self.speed
+            self.direction = 'down_right'
 
     def stop(self):
         pass
@@ -309,7 +344,7 @@ class Enemy2(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect(center=(x, y))
         self.speed = 4
-        self.direction = random.choice([(-1, 0), (1, 0)]) 
+        self.direction = random.choice([(-1, 0), (1, 0)])
         self.shoot_timer = 0
         self.shots_fired = 0
 
@@ -365,6 +400,7 @@ class Enemy2(pygame.sprite.Sprite):
             self.rect.x += direction.x * self.speed
             self.rect.y += direction.y * self.speed
 
+
 class Enemy2Bullet(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
@@ -375,6 +411,7 @@ class Enemy2Bullet(pygame.sprite.Sprite):
         self.rect.bottom = y + 10
         self.speed = 8
         self.shoot_sound = pygame.mixer.Sound('game_sounds/shooting/shoot2.mp3')
+        self.shoot_sound.set_volume(0.3)
         self.shoot_sound.play()
 
     def update(self):
@@ -408,7 +445,6 @@ class BlackHole(pygame.sprite.Sprite):
         self.angle = (self.angle - 1) % 360
         self.image = pygame.transform.rotozoom(self.original_image, self.angle, 1)
         self.rect = self.image.get_rect(center=self.rect.center)
-
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
@@ -470,60 +506,6 @@ class Meteors2(pygame.sprite.Sprite):
         surface.blit(self.image, self.rect)
 
 
-
-class Enemy1(pygame.sprite.Sprite):
-
-    def __init__(self, x, y, image):
-        super().__init__()
-        self.image = image
-        self.rect = self.image.get_rect(center=(x, y))
-        self.speed = 4
-        self.direction = random.choice([(-1, -1), (-1, 1), (1, -1), (1, 1)])
-
-    def update(self, enemy_group):
-        dx, dy = self.direction
-        self.rect.x += dx * self.speed
-        self.rect.y += dy * self.speed
-
-        if self.rect.left < 5:
-            self.rect.left = 5
-            self.direction = random.choice([(1, 0), (0, -1), (0, 1), (1, -1), (1, 1)])
-        elif self.rect.right > WIDTH - 5:
-            self.rect.right = WIDTH - 5
-            self.direction = random.choice([(-1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1)])
-
-        if self.rect.top < 5:
-            self.rect.top = 5
-            self.direction = random.choice([(1, 0), (-1, 0), (0, 1), (1, 1), (-1, 1)])
-        elif self.rect.bottom > HEIGHT - 5:
-            self.rect.bottom = HEIGHT - 5
-            self.direction = random.choice([(1, 0), (-1, 0), (0, -1), (1, -1), (-1, -1)])
-
-        collided_with = pygame.sprite.spritecollide(self, enemy_group, False)
-        for other_enemy in collided_with:
-            if other_enemy != self:
-                distance_vec = pygame.math.Vector2(other_enemy.rect.center) - pygame.math.Vector2(self.rect.center)
-                distance = distance_vec.length()
-                angle = distance_vec.angle_to(pygame.math.Vector2(1, 0))
-
-                repel_vec = pygame.math.Vector2(1, 0).rotate(angle)
-                repel_vec *= (1 - (distance / (self.rect.width + other_enemy.rect.width)))
-                repel_vec *= ENEMY_FORCE
-
-                self_dir = pygame.math.Vector2(self.direction)
-                other_dir = pygame.math.Vector2(other_enemy.direction)
-
-                if distance != 0:
-                    new_dir = self_dir.reflect(distance_vec).normalize()
-                    other_new_dir = other_dir.reflect(-distance_vec).normalize()
-
-                    self.direction = new_dir.x, new_dir.y
-                    other_enemy.direction = other_new_dir.x, other_new_dir.y
-
-                self.rect.move_ip(-repel_vec.x, -repel_vec.y)
-                other_enemy.rect.move_ip(repel_vec.x, repel_vec.y)
-
-
 class Boss1(pygame.sprite.Sprite):
 
     def __init__(self, x, y, image):
@@ -531,7 +513,7 @@ class Boss1(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect(center=(x, y))
         self.speed = 6
-        self.direction = random.choice([(-1, 0), (1, 0)]) 
+        self.direction = random.choice([(-1, 0), (1, 0)])
         self.shoot_timer = 0
         self.shots_fired = 0
 
@@ -578,6 +560,7 @@ class Boss1Bullet(pygame.sprite.Sprite):
         self.rect.bottom = y + 10
         self.speed = 10
         self.shoot_sound = pygame.mixer.Sound('game_sounds/shooting/boss1shoot.mp3')
+        self.shoot_sound.set_volume(0.4)
         self.shoot_sound.play()
 
     def update(self):
@@ -585,6 +568,7 @@ class Boss1Bullet(pygame.sprite.Sprite):
 
         if self.rect.top > HEIGHT:
             self.kill()
+
 
 class Boss2(pygame.sprite.Sprite):
 
@@ -668,6 +652,7 @@ class Boss2Bullet(pygame.sprite.Sprite):
         self.speed = 11
         self.direction = direction
         self.shoot_sound = pygame.mixer.Sound('game_sounds/shooting/boss2shoot.mp3')
+        self.shoot_sound.set_volume(0.4)
         self.shoot_sound.play()
 
     def update(self):
@@ -677,12 +662,11 @@ class Boss2Bullet(pygame.sprite.Sprite):
         angle = math.degrees(angle)
 
         self.image = pygame.transform.rotate(self.image_orig, -angle)
-
-
         self.rect = self.image.get_rect(center=self.rect.center)
 
         if self.rect.top > HEIGHT:
             self.kill()
+
 
 class Boss3(pygame.sprite.Sprite):
 
@@ -774,6 +758,7 @@ class Boss3Bullet(pygame.sprite.Sprite):
         self.speed = 15
         self.direction = direction
         self.shoot_sound = pygame.mixer.Sound('game_sounds/shooting/boss2shoot.mp3')
+        self.shoot_sound.set_volume(0.4)
         self.shoot_sound.play()
 
     def update(self):
@@ -783,8 +768,6 @@ class Boss3Bullet(pygame.sprite.Sprite):
         angle = math.degrees(angle)
 
         self.image = pygame.transform.rotate(self.image_orig, -angle)
-
-
         self.rect = self.image.get_rect(center=self.rect.center)
 
         if self.rect.top > HEIGHT:

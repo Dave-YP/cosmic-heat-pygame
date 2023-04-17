@@ -23,6 +23,13 @@ def animate_screen():
 
 pygame.mixer.init()
 pygame.init()
+pygame.mixer.music.load('game_sounds/menu.mp3')
+pygame.mixer.music.set_volume(0.25)
+pygame.mixer.music.play(-1)
+pygame.mixer.set_num_channels(20)
+for i in range(20):
+    channel = pygame.mixer.Channel(i)
+    channel.set_volume(0.25)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Main Menu")
@@ -41,7 +48,7 @@ quit_button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 50, 205, 50)
 pygame.mixer.music.load('game_sounds/menu.mp3')
 pygame.mixer.music.play(-1)
 explosion_sound = pygame.mixer.Sound('game_sounds/explosions/explosion1.wav')
-
+explosion_sound.set_volume(0.25)
 selected_button = 0
 show_menu = True
 
@@ -69,6 +76,10 @@ while show_menu:
             elif quit_button_rect.collidepoint(x, y):
                 pygame.quit()
                 sys.exit()
+
+#        if event.type == pygame.JOYBUTTONDOWN and joystick:
+#            if event.button == 7:
+#                paused = not paused
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
@@ -128,7 +139,6 @@ while show_menu:
     text_rect = text.get_rect()
     text_rect.center = quit_button_rect.center
     screen.blit(text, text_rect)
-
     pygame.display.flip()
     clock.tick(60)
 

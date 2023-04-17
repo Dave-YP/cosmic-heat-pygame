@@ -6,7 +6,7 @@ import random
 from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill, Boss1, Boss2, Boss3, Explosion2
 from game_objects import Meteors, Meteors2, Bullet, DoubleRefill, ExtraScore, BlackHole, Enemy2
 from game_controls import move_player, move_player_with_joystick
-from constants import WIDTH, HEIGHT, FPS
+from constants import WIDTH, HEIGHT, FPS, SHOOT_DELAY
 from game_functions import show_game_over, music_background
 from menu import show_menu, animate_screen
 
@@ -16,6 +16,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 surface = pygame.Surface((WIDTH, HEIGHT))
 pygame.display.set_caption("Cosmic Heat")
 clock = pygame.time.Clock()
+
 
 def main():
     pygame.mixer.music.stop()
@@ -67,7 +68,8 @@ current_image = background_img
 new_background_activated = False
 
 explosion_images = [pygame.image.load(f"images/explosion/explosion{i}.png") for i in range(8)]
-explosion2_images = [pygame.image.load(f"images/explosion3/explosion{i}.png") for i in range(18)]
+explosion2_images = [pygame.image.load(f"images/explosion2/explosion{i}.png") for i in range(18)]
+explosion3_images = [pygame.image.load(f"images/explosion3/explosion{i}.png") for i in range(18)]
 
 enemy1_img = [
     pygame.image.load('images/enemy/enemy1_1.png').convert_alpha(),
@@ -124,6 +126,9 @@ if show_menu:
     import menu
     menu.main()
 
+is_shooting = False
+last_shot_time = 0
+
 while running:
 
     for event in pygame.event.get():
@@ -132,10 +137,13 @@ while running:
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and not paused:
-                if bullet_counter > 0:
+                if bullet_counter > 0 and pygame.time.get_ticks() - last_shot_time > SHOOT_DELAY:
+                    last_shot_time = pygame.time.get_ticks()
                     bullet = Bullet(player.rect.centerx, player.rect.top)
                     bullets.add(bullet)
                     bullet_counter -= 1
+                is_shooting = True
+
             elif event.key == pygame.K_ESCAPE:
                 sys.exit(0)
             elif event.key == pygame.K_p or event.key == pygame.K_PAUSE:
@@ -153,6 +161,7 @@ while running:
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE and player.original_image is not None:
                 player.image = player.original_image.copy()
+                is_shooting = False
             elif not paused:
                 if event.key == pygame.K_LEFT:
                     player.stop_left()
@@ -165,12 +174,23 @@ while running:
 
         elif event.type == pygame.JOYBUTTONDOWN:
             if event.button == 0 and not paused:
+                is_shooting = True
                 if bullet_counter > 0:
                     bullet = Bullet(player.rect.centerx, player.rect.top)
                     bullets.add(bullet)
                     bullet_counter -= 1
             elif event.button == 7:
                 paused = not paused
+        elif event.type == pygame.JOYBUTTONUP:
+            if event.button == 0 and player.original_image is not None:
+                is_shooting = False
+
+    if pygame.time.get_ticks() - last_shot_time > SHOOT_DELAY and is_shooting and not paused:
+        if bullet_counter > 0:
+            last_shot_time = pygame.time.get_ticks()
+            bullet = Bullet(player.rect.centerx, player.rect.top)
+            bullets.add(bullet)
+            bullet_counter -= 1
 
     if joystick:
         if not paused:
@@ -227,7 +247,6 @@ while running:
     if score > hi_score:
         hi_score = score
 
-
     if random.randint(0, 40) == 0:
         enemy_img = random.choice(enemy1_img)
         enemy_object = Enemy1(
@@ -256,7 +275,7 @@ while running:
         )
         boss1_group.add(boss1_object)
         boss1_spawned = True
-    
+
     if score >= 10000 and not boss2_spawned:
         pygame.mixer.Sound('game_sounds/warning.mp3').play()
         boss2_img = boss2_img
@@ -267,7 +286,7 @@ while running:
         )
         boss2_group.add(boss2_object)
         boss2_spawned = True
-    
+
     if score >= 15000 and not boss3_spawned:
         pygame.mixer.Sound('game_sounds/warning.mp3').play()
         boss3_img = boss3_img
@@ -409,8 +428,6 @@ while running:
         if score >= 20000:
             extra_score.speed = 8
 
-        # print(f"Extra Score speed: {extra_score.speed:.2f}")
-
     for double_refill in double_refill_group:
         double_refill.update()
         double_refill.draw(screen)
@@ -464,7 +481,6 @@ while running:
             meteor_object.speed = 8
         if score >= 20000:
             meteor_object.speed = 10
-        # print(f"Meteor Score speed: {meteor_object.speed:.2f}")
 
     for meteor2_object in meteor2_group:
         meteor2_object.update()
@@ -566,10 +582,10 @@ while running:
         for enemy2_bullet in enemy2_bullets:
             if enemy2_bullet.rect.colliderect(player.rect):
                 player_life -= 10
-                explosion = Explosion(player.rect.center, explosion_images)
+                explosion = Explosion(player.rect.center, explosion3_images)
                 explosions.add(explosion)
                 enemy2_bullet.kill()
-    
+
     for boss1_object in boss1_group:
         boss1_object.update(boss1_bullets, player)
         boss1_group.draw(screen)
@@ -587,7 +603,7 @@ while running:
             explosions2.add(explosion2)
             boss1_health -= 6
             if boss1_health <= 0:
-                explosion = Explosion2(boss1_object.rect.center, explosion2_images)
+                explosion = Explosion2(boss1_object.rect.center, explosion3_images)
                 explosions.add(explosion)
                 boss1_object.kill()
                 score += 500
@@ -603,7 +619,7 @@ while running:
         for boss1_bullet in boss1_bullets:
             if boss1_bullet.rect.colliderect(player.rect):
                 player_life -= 20
-                explosion = Explosion(player.rect.center, explosion_images)
+                explosion = Explosion(player.rect.center, explosion3_images)
                 explosions.add(explosion)
                 boss1_bullet.kill()
 
@@ -625,7 +641,7 @@ while running:
         boss2_bullets.draw(screen)
 
         if boss2_object.rect.colliderect(player.rect):
-            player_life -= 20
+            player_life -= 2
             explosion2 = Explosion2(boss2_object.rect.center, explosion2_images)
             explosions2.add(explosion2)
 
@@ -635,7 +651,7 @@ while running:
             explosions2.add(explosion2)
             boss2_health -= 8
             if boss2_health <= 0:
-                explosion2 = Explosion2(boss2_object.rect.center, explosion2_images)
+                explosion2 = Explosion2(boss2_object.rect.center, explosion3_images)
                 explosions2.add(explosion2)
                 boss2_object.kill()
                 score += 800
@@ -651,7 +667,7 @@ while running:
         for boss2_bullet in boss2_bullets:
             if boss2_bullet.rect.colliderect(player.rect):
                 player_life -= 20
-                explosion = Explosion(player.rect.center, explosion_images)
+                explosion = Explosion(player.rect.center, explosion3_images)
                 explosions.add(explosion)
                 boss2_bullet.kill()
 
@@ -683,7 +699,7 @@ while running:
             explosions2.add(explosion2)
             boss3_health -= 6
             if boss3_health <= 0:
-                explosion2 = Explosion2(boss3_object.rect.center, explosion2_images)
+                explosion2 = Explosion2(boss3_object.rect.center, explosion3_images)
                 explosions2.add(explosion2)
                 boss3_object.kill()
                 score += 1000
@@ -699,7 +715,7 @@ while running:
         for boss3_bullet in boss3_bullets:
             if boss3_bullet.rect.colliderect(player.rect):
                 player_life -= 20
-                explosion = Explosion(player.rect.center, explosion_images)
+                explosion = Explosion(player.rect.center, explosion3_images)
                 explosions.add(explosion)
                 boss3_bullet.kill()
 
@@ -720,7 +736,7 @@ while running:
     for explosion in explosions:
         explosion.update()
         screen.blit(explosion.image, explosion.rect)
-    
+
     for explosion2 in explosions2:
         explosion2.update()
         screen.blit(explosion2.image, explosion2.rect)
@@ -732,7 +748,6 @@ while running:
         if bullet.rect.bottom < 0:
             bullet.kill()
             bullet_counter -= 1
-
 
     player_life_surface = pygame.Surface((200, 25), pygame.SRCALPHA, 32)
     player_life_surface.set_alpha(216)
@@ -769,8 +784,7 @@ while running:
     bullet_counter_surface.blit(bullet_counter_bar, (35, 0))
     bullet_x_pos = 10
     bullet_y_pos = player_life_surface.get_height() + 20
-    screen.blit(bullet_counter_surface, (bullet_x_pos, bullet_y_pos)) 
-
+    screen.blit(bullet_counter_surface, (bullet_x_pos, bullet_y_pos))
 
     score_surface = pygame.font.SysFont('Comic Sans MS', 30).render(f'{score}', True, (238, 232, 170))
     score_image_rect = score_surface.get_rect()
