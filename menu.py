@@ -77,10 +77,6 @@ while show_menu:
                 pygame.quit()
                 sys.exit()
 
-#        if event.type == pygame.JOYBUTTONDOWN and joystick:
-#            if event.button == 7:
-#                paused = not paused
-
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
                 selected_button = 0
