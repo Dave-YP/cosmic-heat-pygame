@@ -753,15 +753,18 @@ def render():
 
 
 
-while running:
+def main_loop():
+    while running:
 
-    get_events()
+        get_events()
 
-    if check_events():
-        continue
+        if check_events():
+            continue
 
-    render()
+        render()
 
-    pygame.display.flip()
+        pygame.display.flip()
 
-    clock.tick(FPS)
+        clock.tick(FPS)
+
+main_loop()
