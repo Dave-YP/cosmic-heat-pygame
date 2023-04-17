@@ -2,13 +2,7 @@ import pygame
 import sys
 import random
 import pygame.mixer
-
-
-WIDTH, HEIGHT = 1200, 800
-FPS = 60
-WHITE = (154, 164, 166)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
+from constants import WIDTH, HEIGHT, BLACK, WHITE, RED
 
 
 def animate_screen():
@@ -127,7 +121,6 @@ while show_menu:
     text_rect = text.get_rect()
     text_rect.center = play_button_rect.center
     screen.blit(text, text_rect)
-
     text = font.render("Exit", True, WHITE)
     pygame.draw.rect(screen, BLACK, quit_button_rect, border_radius=10)
     if selected_button == 1:
