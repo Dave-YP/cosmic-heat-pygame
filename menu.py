@@ -1,6 +1,7 @@
-import pygame
 import sys
 import random
+
+import pygame
 import pygame.mixer
 
 from classes.constants import WIDTH, HEIGHT, BLACK, WHITE, RED
