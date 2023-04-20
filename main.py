@@ -464,14 +464,14 @@ while running:
             explosion = Explosion(meteor_object.rect.center, explosion_images)
             explosions.add(explosion)
             meteor_object.kill()
-            score += 30
+            score += 50
 
         bullet_collisions = pygame.sprite.spritecollide(meteor_object, bullets, True)
         for bullet_collision in bullet_collisions:
             explosion = Explosion(meteor_object.rect.center, explosion_images)
             explosions.add(explosion)
             meteor_object.kill()
-            score += 60
+            score += 80
 
             if random.randint(0, 10) == 0:
                 double_refill = DoubleRefill(
@@ -534,7 +534,7 @@ while running:
             explosion = Explosion(enemy_object.rect.center, explosion_images)
             explosions.add(explosion)
             enemy_object.kill()
-            score += 25
+            score += 20
 
         bullet_collisions = pygame.sprite.spritecollide(enemy_object, bullets, True)
         for bullet_collision in bullet_collisions:
@@ -577,7 +577,7 @@ while running:
             explosion2 = Explosion2(enemy2_object.rect.center, explosion2_images)
             explosions2.add(explosion2)
             enemy2_object.kill()
-            score += 50
+            score += 80
 
             if random.randint(0, 20) == 0:
                 double_refill = DoubleRefill(
@@ -609,12 +609,12 @@ while running:
         for bullet_collision in bullet_collisions:
             explosion2 = Explosion(boss1_object.rect.center, explosion2_images)
             explosions2.add(explosion2)
-            boss1_health -= 6
+            boss1_health -= 5
             if boss1_health <= 0:
                 explosion = Explosion2(boss1_object.rect.center, explosion3_images)
                 explosions.add(explosion)
                 boss1_object.kill()
-                score += 500
+                score += 400
 
                 if random.randint(0, 20) == 0:
                     double_refill = DoubleRefill(
