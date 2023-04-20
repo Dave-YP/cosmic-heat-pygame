@@ -2,7 +2,8 @@ import pygame
 import sys
 import random
 import pygame.mixer
-from constants import WIDTH, HEIGHT, BLACK, WHITE, RED
+
+from classes.constants import WIDTH, HEIGHT, BLACK, WHITE, RED
 
 
 def animate_screen():
@@ -64,8 +65,8 @@ while show_menu:
                 explosion_sound.play()
                 animate_screen()
                 show_menu = False
-                import game
-                game.main()
+                import main
+                main.main()
                 break
             elif quit_button_rect.collidepoint(x, y):
                 pygame.quit()
@@ -82,8 +83,8 @@ while show_menu:
                     animate_screen()
                     show_menu = False
                     screen.fill(BLACK)
-                    import game
-                    game.main()
+                    import main
+                    main.main()
                     break
                 elif selected_button == 1:
                     pygame.quit()

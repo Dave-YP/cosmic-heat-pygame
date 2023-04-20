@@ -3,12 +3,19 @@ import sys
 import pygame
 import random
 
-from game_objects import Enemy1, Player, Explosion, BulletRefill, HealthRefill, Boss1, Boss2, Boss3, Explosion2
-from game_objects import Meteors, Meteors2, Bullet, DoubleRefill, ExtraScore, BlackHole, Enemy2
-from game_controls import move_player, move_player_with_joystick
-from constants import WIDTH, HEIGHT, FPS, SHOOT_DELAY
-from game_functions import show_game_over, music_background
+from controls import move_player, move_player_with_joystick
+from classes.constants import WIDTH, HEIGHT, FPS, SHOOT_DELAY
+from functions import show_game_over, music_background
 from menu import show_menu, animate_screen
+
+from classes.player import Player
+from classes.bullets import Bullet
+from classes.refill import BulletRefill, HealthRefill, DoubleRefill, ExtraScore
+from classes.meteors import Meteors, Meteors2, BlackHole
+from classes.explosions import Explosion, Explosion2
+from classes.enemies import Enemy1, Enemy2
+from classes.bosses import Boss1, Boss2, Boss3
+
 
 pygame.init()
 music_background()
@@ -129,6 +136,7 @@ if show_menu:
 is_shooting = False
 last_shot_time = 0
 
+
 while running:
 
     for event in pygame.event.get():
@@ -247,7 +255,7 @@ while running:
     if score > hi_score:
         hi_score = score
 
-    if random.randint(0, 40) == 0:
+    if random.randint(0, 120) == 0:
         enemy_img = random.choice(enemy1_img)
         enemy_object = Enemy1(
             random.randint(100, WIDTH - 50),
