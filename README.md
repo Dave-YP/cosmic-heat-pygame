@@ -6,7 +6,7 @@ Just a 2D space shooter from a neighboring parallel world. It was written using 
  - python -m venv env
  - source env/Scripts/activate
  - pip install -r requirements.txt
- - python game.py
+ - python main.py
 
  ## Controls:
  - shoot - SPACE
