@@ -6,7 +6,7 @@ import random
 from controls import move_player, move_player_with_joystick
 from classes.constants import WIDTH, HEIGHT, FPS, SHOOT_DELAY
 from functions import show_game_over, music_background
-from menu import show_menu, animate_screen
+from menu import show_menu
 
 from classes.player import Player
 from classes.bullets import Bullet
@@ -23,13 +23,6 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 surface = pygame.Surface((WIDTH, HEIGHT))
 pygame.display.set_caption("Cosmic Heat")
 clock = pygame.time.Clock()
-
-
-def main():
-    pygame.mixer.music.stop()
-    pygame.mixer.music.load('game_sounds/game.mp3')
-    pygame.mixer.music.play(-1)
-    animate_screen()
 
 
 explosions = pygame.sprite.Group()
@@ -734,9 +727,17 @@ while running:
 
     if boss3_group:
         boss3_object = boss3_group.sprites()[0]
-        boss3_health_bar_rect.center = (boss3_object.rect.centerx, boss3_object.rect.top - 5)
+        boss3_health_bar_rect.center = (
+            boss3_object.rect.centerx,
+            boss3_object.rect.top - 5
+        )
         pygame.draw.rect(screen, (255, 0, 0), boss3_health_bar_rect)
-        pygame.draw.rect(screen, (0, 255, 0), (boss3_health_bar_rect.left, boss3_health_bar_rect.top, boss3_health, boss3_health_bar_rect.height))
+        pygame.draw.rect(screen, (0, 255, 0), (
+            boss3_health_bar_rect.left,
+            boss3_health_bar_rect.top,
+            boss3_health,
+            boss3_health_bar_rect.height)
+        )
 
     player_image_copy = player.image.copy()
     screen.blit(player_image_copy, player.rect)

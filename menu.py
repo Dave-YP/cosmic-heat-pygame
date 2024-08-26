@@ -99,8 +99,8 @@ while show_menu:
                         animate_screen()
                         show_menu = False
                         screen.fill(BLACK)
-                        import game
-                        game.main()
+                        import main
+                        main.main()
                         break
                     elif selected_button == 1:
                         pygame.quit()
