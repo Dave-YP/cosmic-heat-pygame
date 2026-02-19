@@ -1,5 +1,6 @@
 import pygame
 import random
+from settings import game_settings
 
 
 class Explosion(pygame.sprite.Sprite):
@@ -18,8 +19,9 @@ class Explosion(pygame.sprite.Sprite):
             pygame.mixer.Sound('game_sounds/explosions/explosion2.wav'),
             pygame.mixer.Sound('game_sounds/explosions/explosion3.wav')
         ]
+        vol = game_settings.get_sfx_volume()
         for sound in self.explosion_sounds:
-            sound.set_volume(0.3)
+            sound.set_volume(vol)
         self.explosion_sound = random.choice(self.explosion_sounds)
         self.sound_played = False
 
@@ -35,7 +37,7 @@ class Explosion(pygame.sprite.Sprite):
                 self.image = self.explosion_images[self.frame]
                 self.rect = self.image.get_rect()
                 self.rect.center = center
-                if not self.sound_played:
+                if not self.sound_played and game_settings.should_play_sfx():
                     self.explosion_sound.play()
                     self.sound_played = True
 
@@ -54,8 +56,9 @@ class Explosion2(pygame.sprite.Sprite):
         self.explosion2_sounds = [
             pygame.mixer.Sound('game_sounds/explosions/explosion3.wav')
         ]
+        vol = game_settings.get_sfx_volume()
         for sound in self.explosion2_sounds:
-            sound.set_volume(0.3)
+            sound.set_volume(vol)
         self.explosion2_sound = random.choice(self.explosion2_sounds)
         self.sound_played = False
 
@@ -71,6 +74,6 @@ class Explosion2(pygame.sprite.Sprite):
                 self.image = self.explosion2_images[self.frame]
                 self.rect = self.image.get_rect()
                 self.rect.center = center
-                if not self.sound_played:
+                if not self.sound_played and game_settings.should_play_sfx():
                     self.explosion2_sound.play()
                     self.sound_played = True

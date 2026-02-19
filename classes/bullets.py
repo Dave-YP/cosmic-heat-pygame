@@ -1,4 +1,5 @@
 import pygame
+from settings import game_settings
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -11,8 +12,9 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.bottom = y - 10
         self.speed = 10
         self.shoot_sound = pygame.mixer.Sound('game_sounds/shooting/shoot.mp3')
-        self.shoot_sound.set_volume(0.4)
-        self.shoot_sound.play()
+        self.shoot_sound.set_volume(game_settings.get_sfx_volume())
+        if game_settings.should_play_sfx():
+            self.shoot_sound.play()
 
     def update(self):
         self.rect.move_ip(0, -self.speed)

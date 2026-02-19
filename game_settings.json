@@ -1,0 +1,8 @@
+{
+  "music_enabled": false,
+  "sfx_enabled": true,
+  "fullscreen": true,
+  "music_volume": 0.25,
+  "sfx_volume": 0.4,
+  "difficulty": "hard"
+}
