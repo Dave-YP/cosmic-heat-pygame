@@ -7,6 +7,7 @@ from controls import move_player, move_player_with_joystick
 from classes.constants import WIDTH, HEIGHT, FPS, SHOOT_DELAY
 from functions import show_game_over, music_background
 from menu import show_menu
+from settings import game_settings
 
 from classes.player import Player
 from classes.bullets import Bullet
@@ -19,11 +20,16 @@ from classes.bosses import Boss1, Boss2, Boss3
 
 pygame.init()
 music_background()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+if game_settings.get("fullscreen"):
+    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+else:
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
 surface = pygame.Surface((WIDTH, HEIGHT))
 pygame.display.set_caption("Cosmic Heat")
 clock = pygame.time.Clock()
 
+warning_sound = pygame.mixer.Sound('game_sounds/warning.mp3')
+warning_sound.set_volume(game_settings.get_sfx_volume())
 
 explosions = pygame.sprite.Group()
 explosions2 = pygame.sprite.Group()
@@ -248,7 +254,8 @@ while running:
     if score > hi_score:
         hi_score = score
 
-    if random.randint(0, 120) == 0:
+    enemy_spawn_rate = int(game_settings.get_difficulty_modifier("enemy_spawn_rate"))
+    if random.randint(0, enemy_spawn_rate) == 0:
         enemy_img = random.choice(enemy1_img)
         enemy_object = Enemy1(
             random.randint(100, WIDTH - 50),
@@ -257,7 +264,7 @@ while running:
         )
         enemy1_group.add(enemy_object)
 
-    if score >= 3000 and random.randint(0, 40) == 0 and len(enemy2_group) < 2:
+    if score >= 3000 and random.randint(0, max(20, enemy_spawn_rate // 3)) == 0 and len(enemy2_group) < 2:
         enemy_img = random.choice(enemy2_img)
         enemy2_object = Enemy2(
             random.randint(200, WIDTH - 100),
@@ -267,7 +274,8 @@ while running:
         enemy2_group.add(enemy2_object)
 
     if score >= 5000 and not boss1_spawned:
-        pygame.mixer.Sound('game_sounds/warning.mp3').play()
+        if game_settings.should_play_sfx():
+            warning_sound.play()
         boss1_img = boss1_img
         boss1_object = Boss1(
             random.randint(200, WIDTH - 100),
@@ -278,7 +286,8 @@ while running:
         boss1_spawned = True
 
     if score >= 10000 and not boss2_spawned:
-        pygame.mixer.Sound('game_sounds/warning.mp3').play()
+        if game_settings.should_play_sfx():
+            warning_sound.play()
         boss2_img = boss2_img
         boss2_object = Boss2(
             random.randint(200, WIDTH - 100),
@@ -289,7 +298,8 @@ while running:
         boss2_spawned = True
 
     if score >= 15000 and not boss3_spawned:
-        pygame.mixer.Sound('game_sounds/warning.mp3').play()
+        if game_settings.should_play_sfx():
+            warning_sound.play()
         boss3_img = boss3_img
         boss3_object = Boss3(
             random.randint(200, WIDTH - 100),
@@ -336,6 +346,8 @@ while running:
         black_hole_group.add(black_hole_object)
 
     if player_life <= 0:
+        if score > 0:
+            game_settings.add_high_score(score)
         show_game_over(score)
         boss1_spawned = False
         boss1_health = 150
@@ -363,13 +375,16 @@ while running:
         explosions.empty()
         explosions2.empty()
 
+    damage_mult = game_settings.get_difficulty_modifier("damage_multiplier")
+    score_mult = game_settings.get_difficulty_modifier("score_multiplier")
+
     for black_hole_object in black_hole_group:
         black_hole_object.update()
         black_hole_object.draw(screen)
 
         if black_hole_object.rect.colliderect(player.rect):
-            player_life -= 1
-            black_hole_object.sound_effect.play()
+            player_life -= max(1, int(1 * damage_mult))
+            game_settings.play_sound(black_hole_object.sound_effect)
 
         if score >= 5000:
             meteor_object.speed = 4
@@ -391,10 +406,10 @@ while running:
                 if bullet_counter > 200:
                     bullet_counter = 200
                 bullet_refill.kill()
-                bullet_refill.sound_effect.play()
+                game_settings.play_sound(bullet_refill.sound_effect)
             else:
                 bullet_refill.kill()
-                bullet_refill.sound_effect.play()
+                game_settings.play_sound(bullet_refill.sound_effect)
 
     for health_refill in health_refill_group:
         health_refill.update()
@@ -406,19 +421,19 @@ while running:
                 if player_life > 200:
                     player_life = 200
                 health_refill.kill()
-                health_refill.sound_effect.play()
+                game_settings.play_sound(health_refill.sound_effect)
             else:
                 health_refill.kill()
-                health_refill.sound_effect.play()
+                game_settings.play_sound(health_refill.sound_effect)
 
     for extra_score in extra_score_group:
         extra_score.update()
         extra_score.draw(screen)
 
         if player.rect.colliderect(extra_score.rect):
-            score += 20
+            score += int(20 * game_settings.get_difficulty_modifier("score_multiplier"))
             extra_score.kill()
-            extra_score.sound_effect.play()
+            game_settings.play_sound(extra_score.sound_effect)
 
         if score >= 3000:
             extra_score.speed = 2
@@ -443,28 +458,28 @@ while running:
                 if bullet_counter > 200:
                     bullet_counter = 200
                 double_refill.kill()
-                double_refill.sound_effect.play()
+                game_settings.play_sound(double_refill.sound_effect)
             else:
                 double_refill.kill()
-                double_refill.sound_effect.play()
+                game_settings.play_sound(double_refill.sound_effect)
 
     for meteor_object in meteor_group:
         meteor_object.update()
         meteor_object.draw(screen)
 
         if meteor_object.rect.colliderect(player.rect):
-            player_life -= 10
+            player_life -= int(10 * damage_mult)
             explosion = Explosion(meteor_object.rect.center, explosion_images)
             explosions.add(explosion)
             meteor_object.kill()
-            score += 50
+            score += int(50 * score_mult)
 
         bullet_collisions = pygame.sprite.spritecollide(meteor_object, bullets, True)
         for bullet_collision in bullet_collisions:
             explosion = Explosion(meteor_object.rect.center, explosion_images)
             explosions.add(explosion)
             meteor_object.kill()
-            score += 80
+            score += int(80 * score_mult)
 
             if random.randint(0, 10) == 0:
                 double_refill = DoubleRefill(
@@ -488,18 +503,18 @@ while running:
         meteor2_object.draw(screen)
 
         if meteor2_object.rect.colliderect(player.rect):
-            player_life -= 10
+            player_life -= int(10 * damage_mult)
             explosion = Explosion(meteor2_object.rect.center, explosion_images)
             explosions.add(explosion)
             meteor2_object.kill()
-            score += 20
+            score += int(20 * score_mult)
 
         bullet_collisions = pygame.sprite.spritecollide(meteor2_object, bullets, True)
         for bullet_collision in bullet_collisions:
             explosion = Explosion(meteor2_object.rect.center, explosion_images)
             explosions.add(explosion)
             meteor2_object.kill()
-            score += 40
+            score += int(40 * score_mult)
 
             if random.randint(0, 20) == 0:
                 double_refill = DoubleRefill(
@@ -523,18 +538,18 @@ while running:
         enemy1_group.draw(screen)
 
         if enemy_object.rect.colliderect(player.rect):
-            player_life -= 10
+            player_life -= int(10 * damage_mult)
             explosion = Explosion(enemy_object.rect.center, explosion_images)
             explosions.add(explosion)
             enemy_object.kill()
-            score += 20
+            score += int(20 * score_mult)
 
         bullet_collisions = pygame.sprite.spritecollide(enemy_object, bullets, True)
         for bullet_collision in bullet_collisions:
             explosion = Explosion(enemy_object.rect.center, explosion_images)
             explosions.add(explosion)
             enemy_object.kill()
-            score += 50
+            score += int(50 * score_mult)
 
             if random.randint(0, 8) == 0:
                 bullet_refill = BulletRefill(
@@ -559,18 +574,18 @@ while running:
         enemy2_bullets.draw(screen)
 
         if enemy2_object.rect.colliderect(player.rect):
-            player_life -= 40
+            player_life -= int(40 * damage_mult)
             explosion2 = Explosion2(enemy2_object.rect.center, explosion2_images)
             explosions2.add(explosion2)
             enemy2_object.kill()
-            score += 20
+            score += int(20 * score_mult)
 
         bullet_collisions = pygame.sprite.spritecollide(enemy2_object, bullets, True)
         for bullet_collision in bullet_collisions:
             explosion2 = Explosion2(enemy2_object.rect.center, explosion2_images)
             explosions2.add(explosion2)
             enemy2_object.kill()
-            score += 80
+            score += int(80 * score_mult)
 
             if random.randint(0, 20) == 0:
                 double_refill = DoubleRefill(
@@ -582,7 +597,7 @@ while running:
 
         for enemy2_bullet in enemy2_bullets:
             if enemy2_bullet.rect.colliderect(player.rect):
-                player_life -= 10
+                player_life -= int(10 * damage_mult)
                 explosion = Explosion(player.rect.center, explosion3_images)
                 explosions.add(explosion)
                 enemy2_bullet.kill()
@@ -594,7 +609,7 @@ while running:
         boss1_bullets.draw(screen)
 
         if boss1_object.rect.colliderect(player.rect):
-            player_life -= 20
+            player_life -= int(20 * damage_mult)
             explosion = Explosion2(boss1_object.rect.center, explosion2_images)
             explosions2.add(explosion)
 
@@ -607,7 +622,7 @@ while running:
                 explosion = Explosion2(boss1_object.rect.center, explosion3_images)
                 explosions.add(explosion)
                 boss1_object.kill()
-                score += 400
+                score += int(400 * score_mult)
 
                 if random.randint(0, 20) == 0:
                     double_refill = DoubleRefill(
@@ -619,7 +634,7 @@ while running:
 
         for boss1_bullet in boss1_bullets:
             if boss1_bullet.rect.colliderect(player.rect):
-                player_life -= 20
+                player_life -= int(20 * damage_mult)
                 explosion = Explosion(player.rect.center, explosion3_images)
                 explosions.add(explosion)
                 boss1_bullet.kill()
@@ -642,7 +657,7 @@ while running:
         boss2_bullets.draw(screen)
 
         if boss2_object.rect.colliderect(player.rect):
-            player_life -= 2
+            player_life -= int(2 * damage_mult)
             explosion2 = Explosion2(boss2_object.rect.center, explosion2_images)
             explosions2.add(explosion2)
 
@@ -655,7 +670,7 @@ while running:
                 explosion2 = Explosion2(boss2_object.rect.center, explosion3_images)
                 explosions2.add(explosion2)
                 boss2_object.kill()
-                score += 800
+                score += int(800 * score_mult)
 
                 if random.randint(0, 20) == 0:
                     double_refill = DoubleRefill(
@@ -667,7 +682,7 @@ while running:
 
         for boss2_bullet in boss2_bullets:
             if boss2_bullet.rect.colliderect(player.rect):
-                player_life -= 20
+                player_life -= int(20 * damage_mult)
                 explosion = Explosion(player.rect.center, explosion3_images)
                 explosions.add(explosion)
                 boss2_bullet.kill()
@@ -690,7 +705,7 @@ while running:
         boss3_bullets.draw(screen)
 
         if boss3_object.rect.colliderect(player.rect):
-            player_life -= 1
+            player_life -= int(1 * damage_mult)
             explosion2 = Explosion2(boss3_object.rect.center, explosion2_images)
             explosions2.add(explosion2)
 
@@ -703,7 +718,7 @@ while running:
                 explosion2 = Explosion2(boss3_object.rect.center, explosion3_images)
                 explosions2.add(explosion2)
                 boss3_object.kill()
-                score += 1000
+                score += int(1000 * score_mult)
 
                 if random.randint(0, 20) == 0:
                     double_refill = DoubleRefill(
@@ -715,7 +730,7 @@ while running:
 
         for boss3_bullet in boss3_bullets:
             if boss3_bullet.rect.colliderect(player.rect):
-                player_life -= 20
+                player_life -= int(20 * damage_mult)
                 explosion = Explosion(player.rect.center, explosion3_images)
                 explosions.add(explosion)
                 boss3_bullet.kill()
