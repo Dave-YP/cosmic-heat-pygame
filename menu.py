@@ -5,15 +5,16 @@ import pygame
 import pygame.mixer
 
 from classes.constants import WIDTH, HEIGHT, BLACK, WHITE, RED
+from display import init_display, get_display
 
 
-def animate_screen():
+def animate_screen(screen, mainmenu_img, display):
     for i in range(0, 20):
         screen.blit(mainmenu_img, (0, 0))
-        pygame.display.flip()
+        display.present()
         pygame.time.wait(10)
         screen.blit(mainmenu_img, (random.randint(-5, 5), random.randint(-5, 5)))
-        pygame.display.flip()
+        display.present()
         pygame.time.wait(10)
 
 
@@ -27,7 +28,10 @@ for i in range(20):
     channel = pygame.mixer.Channel(i)
     channel.set_volume(0.25)
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+# Initialize the shared display manager
+menu_display = init_display()
+screen = menu_display.get_game_surface()
+
 pygame.display.set_caption("Main Menu")
 clock = pygame.time.Clock()
 
@@ -60,16 +64,27 @@ while show_menu:
             pygame.quit()
             sys.exit()
 
+        if event.type == pygame.VIDEORESIZE:
+            menu_display.handle_resize(event.w, event.h)
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_F11:
+                menu_display.toggle_fullscreen()
+            elif event.key == pygame.K_ESCAPE:
+                if menu_display.is_fullscreen():
+                    menu_display.toggle_fullscreen()
+
         if event.type == pygame.MOUSEBUTTONDOWN:
-            x, y = event.pos
-            if play_button_rect.collidepoint(x, y):
+            # Convert window coordinates to logical coordinates
+            logical_x, logical_y = menu_display.window_to_logical(*event.pos)
+            if play_button_rect.collidepoint(logical_x, logical_y):
                 explosion_sound.play()
-                animate_screen()
+                animate_screen(screen, mainmenu_img, menu_display)
                 show_menu = False
                 import main
                 main.main()
                 break
-            elif quit_button_rect.collidepoint(x, y):
+            elif quit_button_rect.collidepoint(logical_x, logical_y):
                 pygame.quit()
                 sys.exit()
 
@@ -81,7 +96,7 @@ while show_menu:
             elif event.key == pygame.K_RETURN:
                 if selected_button == 0:
                     explosion_sound.play()
-                    animate_screen()
+                    animate_screen(screen, mainmenu_img, menu_display)
                     show_menu = False
                     screen.fill(BLACK)
                     import main
@@ -96,7 +111,7 @@ while show_menu:
                 if event.button == 0:
                     if selected_button == 0:
                         explosion_sound.play()
-                        animate_screen()
+                        animate_screen(screen, mainmenu_img, menu_display)
                         show_menu = False
                         screen.fill(BLACK)
                         import main
@@ -130,7 +145,8 @@ while show_menu:
     text_rect = text.get_rect()
     text_rect.center = quit_button_rect.center
     screen.blit(text, text_rect)
-    pygame.display.flip()
+
+    menu_display.present()
     clock.tick(60)
 
 pygame.quit()

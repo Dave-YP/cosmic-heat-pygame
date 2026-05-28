@@ -7,6 +7,7 @@ from controls import move_player, move_player_with_joystick
 from classes.constants import WIDTH, HEIGHT, FPS, SHOOT_DELAY
 from functions import show_game_over, music_background
 from menu import show_menu
+from display import init_display, get_display
 
 from classes.player import Player
 from classes.bullets import Bullet
@@ -19,8 +20,11 @@ from classes.bosses import Boss1, Boss2, Boss3
 
 pygame.init()
 music_background()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-surface = pygame.Surface((WIDTH, HEIGHT))
+
+# Initialize the display manager for resizable window support
+display = init_display()
+screen = display.get_game_surface()
+
 pygame.display.set_caption("Cosmic Heat")
 clock = pygame.time.Clock()
 
@@ -106,6 +110,10 @@ black_hole_imgs = [
     pygame.image.load('images/hole/black_hole2.png').convert_alpha()
 ]
 
+# Pre-load UI images once
+life_bar_image = pygame.image.load("images/life_bar.png").convert_alpha()
+bullet_bar_image = pygame.image.load("images/bullet_bar.png").convert_alpha()
+
 initial_player_pos = (WIDTH // 2, HEIGHT - 100)
 
 score = 0
@@ -136,8 +144,14 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        elif event.type == pygame.VIDEORESIZE:
+            display.handle_resize(event.w, event.h)
+
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and not paused:
+            if event.key == pygame.K_F11:
+                display.toggle_fullscreen()
+
+            elif event.key == pygame.K_SPACE and not paused:
                 if bullet_counter > 0 and pygame.time.get_ticks() - last_shot_time > SHOOT_DELAY:
                     last_shot_time = pygame.time.get_ticks()
                     bullet = Bullet(player.rect.centerx, player.rect.top)
@@ -146,7 +160,10 @@ while running:
                 is_shooting = True
 
             elif event.key == pygame.K_ESCAPE:
-                sys.exit(0)
+                if display.is_fullscreen():
+                    display.toggle_fullscreen()
+                else:
+                    sys.exit(0)
             elif event.key == pygame.K_p or event.key == pygame.K_PAUSE:
                 paused = not paused
             elif not paused:
@@ -202,7 +219,7 @@ while running:
         text = font.render("PAUSE", True, (255, 255, 255))
         text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
         screen.blit(text, text_rect)
-        pygame.display.flip()
+        display.present()
         continue
 
     keys = pygame.key.get_pressed()
@@ -336,7 +353,7 @@ while running:
         black_hole_group.add(black_hole_object)
 
     if player_life <= 0:
-        show_game_over(score)
+        show_game_over(screen, score)
         boss1_spawned = False
         boss1_health = 150
         boss2_spawned = False
@@ -758,6 +775,8 @@ while running:
             bullet.kill()
             bullet_counter -= 1
 
+    # UI Elements - positioned relative to logical resolution
+    # Life bar (top-left)
     player_life_surface = pygame.Surface((200, 25), pygame.SRCALPHA, 32)
     player_life_surface.set_alpha(216)
 
@@ -766,8 +785,6 @@ while running:
 
     player_life_bar = pygame.Surface((player_life_bar_width, 30), pygame.SRCALPHA, 32)
     player_life_bar.set_alpha(216)
-
-    life_bar_image = pygame.image.load("images/life_bar.png").convert_alpha()
 
     if player_life > 50:
         player_life_bar.fill((152, 251, 152))
@@ -780,11 +797,11 @@ while running:
     life_x_pos = 10
     screen.blit(player_life_surface, (life_x_pos, 10))
 
+    # Bullet counter bar (below life bar)
     bullet_counter_surface = pygame.Surface((200, 25), pygame.SRCALPHA, 32)
     bullet_counter_surface.set_alpha(216)
-    bullet_counter_bar = pygame.Surface(((bullet_counter / 200) * 200, 30), pygame.SRCALPHA, 32)
+    bullet_counter_bar = pygame.Surface((int((bullet_counter / 200) * 200), 30), pygame.SRCALPHA, 32)
     bullet_counter_bar.set_alpha(216)
-    bullet_bar_image = pygame.image.load("images/bullet_bar.png").convert_alpha()
     if bullet_counter > 50:
         bullet_counter_bar.fill((255, 23, 23))
     else:
@@ -795,6 +812,7 @@ while running:
     bullet_y_pos = player_life_surface.get_height() + 20
     screen.blit(bullet_counter_surface, (bullet_x_pos, bullet_y_pos))
 
+    # Score (top-right)
     score_surface = pygame.font.SysFont('Comic Sans MS', 30).render(f'{score}', True, (238, 232, 170))
     score_image_rect = score_surface.get_rect()
     score_image_rect.x, score_image_rect.y = WIDTH - score_image_rect.width - extra_score_img.get_width() - 10, 10
@@ -802,13 +820,15 @@ while running:
     screen.blit(extra_score_img, (score_image_rect.right + 5, score_image_rect.centery - extra_score_img.get_height()//2))
     screen.blit(score_surface, score_image_rect)
 
+    # Hi-score (top-center)
     hi_score_surface = pygame.font.SysFont('Comic Sans MS', 20).render(f'HI-SCORE: {hi_score}', True, (255, 255, 255))
     hi_score_surface.set_alpha(128)
-    hi_score_x_pos = (screen.get_width() - hi_score_surface.get_width()) // 2
+    hi_score_x_pos = (WIDTH - hi_score_surface.get_width()) // 2
     hi_score_y_pos = 0
     screen.blit(hi_score_surface, (hi_score_x_pos, hi_score_y_pos))
 
-    pygame.display.flip()
+    # Present the scaled game surface to the window
+    display.present()
 
     clock.tick(FPS)
 

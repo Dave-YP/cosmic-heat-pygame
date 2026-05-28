@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+vir_env/
 
 # C extensions
 *.so
